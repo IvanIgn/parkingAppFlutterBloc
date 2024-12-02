@@ -15,9 +15,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Lista över skärmar för varje navigationspunkt
   final List<Widget> _screens = [
-    ManageParkingScreen(),
-    MonitorParkingScreen(),
-    OverviewStatisticsScreen(),
+    const ManageParkingScreen(),
+    const MonitorParkingScreen(),
+    const OverviewStatisticsScreen(),
   ];
 
   void _onItemTapped(int index) {

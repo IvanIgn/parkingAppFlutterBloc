@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(ParkingAdminApp());
+  runApp(const ParkingAdminApp());
 }
 
 class ParkingAdminApp extends StatelessWidget {
@@ -16,7 +16,7 @@ class ParkingAdminApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }

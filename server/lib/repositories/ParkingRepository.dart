@@ -1,9 +1,10 @@
 //import '../models/Parking.dart' as server_parking;
 //import 'package:objectbox/objectbox.dart';
 //import 'package:cli_server/router_config.dart';
-
 import 'package:server/router_config.dart';
-import 'package:shared/cli_server_stuff.dart';
+import 'package:shared/only_import_on_storage_device.dart';
+import 'package:shared/shared.dart';
+
 //import 'package:cli_shared/cli_shared.dart' as shared;
 
 class ParkingRepository {

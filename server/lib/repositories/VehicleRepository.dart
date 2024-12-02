@@ -1,9 +1,6 @@
-//import 'package:objectbox/objectbox.dart';
-//import '../models/Vehicle.dart';
-//import 'package:cli_server/router_config.dart';
-
 import 'package:server/router_config.dart';
-import 'package:shared/cli_server_stuff.dart';
+import 'package:shared/only_import_on_storage_device.dart';
+import 'package:shared/shared.dart';
 
 class VehicleRepository {
   static final VehicleRepository instance = VehicleRepository._();

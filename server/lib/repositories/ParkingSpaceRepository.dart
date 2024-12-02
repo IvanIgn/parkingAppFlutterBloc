@@ -1,5 +1,6 @@
 import 'package:server/router_config.dart';
-import 'package:shared/cli_server_stuff.dart';
+import 'package:shared/only_import_on_storage_device.dart';
+import 'package:shared/shared.dart';
 
 class ParkingSpaceRepository {
   // final String baseUrl = 'http://localhost:8080'; // Serverns URL
