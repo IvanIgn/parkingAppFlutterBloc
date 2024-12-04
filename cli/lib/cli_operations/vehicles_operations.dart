@@ -218,7 +218,7 @@ class VehiclesOperations extends SetMainPage {
 
       // If the update completes successfully, notify the user
       print(
-          'Fordon med registreringsnummer "$updatedRegNumber" har uppdaterats framgångsrikt.');
+          'Fordon med registreringsnummer "$updatedRegNumber" har uppdaterats.');
     } catch (e) {
       // Catch any error during the update process and print it
       _printError(

@@ -58,7 +58,7 @@ class ParkingsOperations extends SetMainPage {
       do {
         regNumInput = _promptInput('Ange registreringsnummer:');
         if (regNumInput == null || regNumInput.trim().isEmpty) {
-          _printError('registreringsnummer får inte vara tom. Försök igen.');
+          _printError('Registreringsnummer får inte vara tom. Försök igen.');
           setMainPage();
           return;
         }
@@ -85,7 +85,7 @@ class ParkingsOperations extends SetMainPage {
       do {
         parkSpaceIdInput = _promptInput('Ange parkeringsplats ID:');
         if (parkSpaceIdInput == null || parkSpaceIdInput.trim().isEmpty) {
-          _printError('registreringsnummer får inte vara tom. Försök igen.');
+          _printError('Registreringsnummer får inte vara tom. Försök igen.');
           setMainPage();
           return;
         }
@@ -93,12 +93,10 @@ class ParkingsOperations extends SetMainPage {
 
       final parkSpaceList = await parkingSpaceRepository.getAllParkingSpaces();
 
-      final foundSpaceIndex =
-          parkSpaceList.indexWhere((i) => i.id == parkSpaceIdInput);
-
       late final ParkingSpace spaceToAdd;
       if (foundRegIndex != -1) {
-        spaceToAdd = parkSpaceList.firstWhere((i) => i.id == parkSpaceIdInput);
+        spaceToAdd = parkSpaceList
+            .firstWhere((i) => i.id.toString() == parkSpaceIdInput);
 
         // Steg 1: Skapa nytt fordon
       } else {
@@ -167,7 +165,7 @@ class ParkingsOperations extends SetMainPage {
   }
 
   void _updateParkingOperation() async {
-    print('\nDu har valt att uppdatera en parkering\n');
+    print('\n--- Uppdatera en parkering ---');
 
     // Fetch all parkings
     final parkingList = await parkingRepository.getAllParkings();
@@ -245,8 +243,7 @@ class ParkingsOperations extends SetMainPage {
           formattedEndTimeInput,
           parkingToUpdate.parkingSpace!.pricePerHour.toDouble(),
         );
-        print(
-            'Parkering uppdaterad. Välj att se alla i menyn för att se parkeringar.');
+        print('Parkering uppdaterad.');
       } else {
         _printError('Något gick fel vid uppdatering av parkeringen.');
       }

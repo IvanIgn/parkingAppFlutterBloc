@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:parkingapp_user/views/login_screen.dart';
-import 'package:parkingapp_user/views/vehicle_management_screen.dart';
-import 'package:parkingapp_user/views/parking_selection_screen.dart';
-import 'package:parkingapp_user/views/active_parking_screen.dart';
+import 'package:parkingapp_user/views/login_view.dart';
+import 'package:parkingapp_user/views/vehicle_management_view.dart';
+import 'package:parkingapp_user/views/parkingplace_selection_view.dart';
+import 'package:parkingapp_user/views/active_parking_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const LoginScreen(),
     const VehicleManagementScreen(),
-    const ParkingSelectionScreen(),
+    const ParkingSpaceSelectionScreen(),
     const ActiveParkingScreen(),
   ];
 

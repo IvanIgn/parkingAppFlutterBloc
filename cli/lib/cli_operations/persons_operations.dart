@@ -149,6 +149,7 @@ class PersonsOperations extends SetMainPage {
 
       if (foundPersonIndex == -1) {
         print('Ingen person hittades med det angivna personnumret.');
+        setMainPage();
         return;
       }
 
@@ -172,7 +173,7 @@ class PersonsOperations extends SetMainPage {
 
       print('Personen har uppdaterats framgångsrikt.');
     } catch (e) {
-      print('Ett fel inträffade:');
+      print('Ett fel inträffade: ${e.toString()}');
     } finally {
       setMainPage();
     }
@@ -217,9 +218,10 @@ class PersonsOperations extends SetMainPage {
 
       // Step 4: Delete the person from the repository
       await personRepository.deletePerson(personToDelete.id);
+      final personName = personToDelete.name;
 
       // Step 5: Notify the user
-      print('Person med personnummer $personNrInput har raderats.');
+      print('Person $personName med personnummer $personNrInput har raderats.');
     } catch (e) {
       // Handle any errors during the deletion process
       printError('Ett oväntat fel inträffade: ${e.toString()}');

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:parkingapp_user/widgets/navbar_widget.dart';
 
-import 'views/home_screen.dart';
+import 'views/home_view.dart';
 
 void main() {
   runApp(const ParkingApp());

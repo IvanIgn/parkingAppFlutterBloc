@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:parkingapp_admin/screens/manage_parking_screen.dart';
-import 'package:parkingapp_admin/screens/monitor_parking_screen.dart';
-import 'package:parkingapp_admin/screens/overview_statistics_screen.dart';
+import 'package:parkingapp_admin/views/manage_parking_view.dart';
+import 'package:parkingapp_admin/views/monitor_parking_view.dart';
+import 'package:parkingapp_admin/views/overview_statistics_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 

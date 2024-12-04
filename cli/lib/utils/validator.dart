@@ -54,4 +54,12 @@ class Validator {
 
     return number != null;
   }
+
+  static bool containsSwedishLetters(String input) {
+    // Define the set of Swedish characters
+    final swedishCharacters = RegExp(r'[åäöÅÄÖ]');
+
+    // Check if the input string contains any of these characters
+    return swedishCharacters.hasMatch(input);
+  }
 }

@@ -98,25 +98,26 @@ class ParkingSpaceOperations extends SetMainPage {
     try {
       print('\n--- Alla parkeringsplatser ---\n');
 
-      // Fetch all parking spaces
+      // Hämta alla parkeringsplatser
       final parkingSpaces = await parkingSpaceRepository.getAllParkingSpaces();
 
-      // Handle case where no parking spaces are found
+      // Hantera fallet där inga parkeringsplatser hittas
       if (parkingSpaces.isEmpty) {
         print('Inga parkeringsplatser hittades.');
       } else {
-        // Iterate through and display each parking space
+        // Iterera och visa varje parkeringsplats
         for (var space in parkingSpaces) {
+          print('\n');
           print(
-              'ID: ${space.id}, Adress: ${space.address}, Pris per timme: ${space.pricePerHour} kr');
+              'ID: ${space.id}, Adress: ${space.address}, Pris per timme: ${space.pricePerHour.toStringAsFixed(2)} kr'); // Formaterar priset till två decimaler
         }
         print('\n');
       }
     } catch (e) {
-      // Handle any errors during the operation
+      // Hantera eventuella fel under operationen
       _printError('Fel vid visning av parkeringsplatser: ${e.toString()}');
     } finally {
-      // Return to main menu
+      // Återgå till huvudmenyn
       setMainPage();
     }
   }
@@ -142,6 +143,8 @@ class ParkingSpaceOperations extends SetMainPage {
             'Ange adressen för den parkeringsplats du vill uppdatera:');
         if (address == null || address.trim().isEmpty) {
           _printError('Adressen är obligatorisk. Försök igen.');
+          _waitForUserInput();
+          return;
         }
       } while (address == null || address.trim().isEmpty);
 
@@ -216,6 +219,8 @@ class ParkingSpaceOperations extends SetMainPage {
             idInput.isEmpty ||
             !Validator.isNumber(idInput)) {
           _printError('Ogiltigt ID. Ange ett positivt heltal.');
+          _waitForUserInput();
+          return;
         } else {
           parkingSpaceId = int.tryParse(idInput);
         }
@@ -227,7 +232,7 @@ class ParkingSpaceOperations extends SetMainPage {
 
       if (parkingSpaceIndex == -1) {
         _printError('Ingen parkeringsplats hittades med det angivna ID:et.');
-        setMainPage();
+        _waitForUserInput();
         return;
       }
 
@@ -255,5 +260,11 @@ class ParkingSpaceOperations extends SetMainPage {
   /// Hjälpmetod för felutskrift
   void _printError(String message) {
     print('Fel: $message');
+  }
+
+  void _waitForUserInput() {
+    print('Tryck på valfri tangent för att återgå till huvudmenyn.');
+    stdin.readLineSync();
+    setMainPage(clearCLI: true);
   }
 }
