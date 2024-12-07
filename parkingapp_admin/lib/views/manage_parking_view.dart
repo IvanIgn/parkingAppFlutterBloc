@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:shared/shared.dart';
 
-class ManageParkingScreen extends StatefulWidget {
-  const ManageParkingScreen({super.key});
+class ManageParkingView extends StatefulWidget {
+  const ManageParkingView({super.key});
 
   @override
-  _ManageParkingScreenState createState() => _ManageParkingScreenState();
+  _ManageParkingViewState createState() => _ManageParkingViewState();
 }
 
-class _ManageParkingScreenState extends State<ManageParkingScreen> {
+class _ManageParkingViewState extends State<ManageParkingView> {
   late Future<List<ParkingSpace>> _parkingSpacesFuture;
 
   @override
@@ -77,22 +77,11 @@ class _ManageParkingScreenState extends State<ManageParkingScreen> {
                     ),
                   ],
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        _showEditParkingSpaceDialog(context, parkingSpace);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(context, parkingSpace);
-                      },
-                    ),
-                  ],
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    _showDeleteConfirmationDialog(context, parkingSpace);
+                  },
                 ),
               );
             },
@@ -111,77 +100,6 @@ class _ManageParkingScreenState extends State<ManageParkingScreen> {
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  void _showEditParkingSpaceDialog(
-      BuildContext context, ParkingSpace parkingSpace) {
-    final TextEditingController idController =
-        TextEditingController(text: parkingSpace.id.toString());
-    final TextEditingController addressController =
-        TextEditingController(text: parkingSpace.address);
-    final TextEditingController pricePerHourController =
-        TextEditingController(text: parkingSpace.pricePerHour.toString());
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Uppdatera parkeringsplats"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Parkeringsplats ID',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Adress',
-                  ),
-                ),
-                TextField(
-                  controller: pricePerHourController,
-                  decoration: const InputDecoration(
-                    labelText: 'Pris per timme',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Avbryt"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                ParkingSpace updatedParkingSpace = ParkingSpace(
-                  id: int.parse(idController.text),
-                  address: addressController.text,
-                  pricePerHour: int.parse(pricePerHourController.text),
-                );
-
-                await ParkingSpaceRepository.instance.updateParkingSpace(
-                    updatedParkingSpace.id, updatedParkingSpace);
-
-                Navigator.of(context).pop();
-                _refreshParkingSpaces();
-              },
-              child: const Text("Uppdatera"),
-            ),
-          ],
-        );
-      },
     );
   }
 

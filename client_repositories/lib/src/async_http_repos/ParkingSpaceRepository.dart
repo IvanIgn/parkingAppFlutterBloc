@@ -110,7 +110,7 @@ class ParkingSpaceRepository {
   }
 
   Future<ParkingSpace> getParkingSpaceById(int id) async {
-    final uri = Uri.parse("http://localhost:8080/parkingspaces/${id}");
+    final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
 
     Response response = await http.get(
       uri,
@@ -148,7 +148,7 @@ class ParkingSpaceRepository {
   }
 
   Future<ParkingSpace> deleteParkingSpace(int id) async {
-    final uri = Uri.parse("http://localhost:8080/parkingspaces/${id}");
+    final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
 
     Response response = await http.delete(
       uri,
@@ -167,7 +167,7 @@ class ParkingSpaceRepository {
 
   Future<ParkingSpace> updateParkingSpace(
       int id, ParkingSpace parkingspace) async {
-    final uri = Uri.parse("http://localhost:8080/parkingspaces/${id}");
+    final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
 
     Response response = await http.put(
       uri,

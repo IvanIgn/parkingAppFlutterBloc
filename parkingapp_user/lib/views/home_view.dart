@@ -8,25 +8,49 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  bool isLoggedIn = false; // Authentication state
 
-  // Lista över skärmar för varje navigationspunkt
-  final List<Widget> _screens = [
-    const LoginScreen(),
-    const VehicleManagementScreen(),
-    const ParkingSpaceSelectionScreen(),
-    const ActiveParkingScreen(),
-  ];
+  // All available screens
+  late List<Widget> _views;
+
+  @override
+  void initState() {
+    super.initState();
+    _views = [
+      LoginView(onLoginSuccess: _onLoginSuccess),
+      const VehicleManagementView(),
+      const ParkingSpaceSelectionScreen(),
+      const ActiveParkingScreen(),
+    ];
+  }
+
+  // Callback for successful login
+  void _onLoginSuccess() {
+    setState(() {
+      isLoggedIn = true;
+      _selectedIndex = 1; // Redirect to the first main screen post-login
+      //_views[0] = const SizedBox.shrink(); // Make LoginView inactive
+    });
+  }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (isLoggedIn || index == 0) {
+      // Allow access to LoginScreen anytime
+      setState(() {
+        _selectedIndex = index;
+        //_views.remove(0); // Remove LoginView after successful login
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Logga in för att komma åt detta informationsflöde")),
+      );
+    }
   }
 
   @override
@@ -35,7 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text("ParkeringsApp"),
       ),
-      body: _screens[_selectedIndex], // Byt innehåll baserat på valt index
+      body: isLoggedIn
+          ? _views[_selectedIndex]
+          : LoginView(
+              onLoginSuccess:
+                  _onLoginSuccess), // Show LoginScreen if not logged in
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(

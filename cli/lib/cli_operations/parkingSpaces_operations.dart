@@ -146,7 +146,7 @@ class ParkingSpaceOperations extends SetMainPage {
           _waitForUserInput();
           return;
         }
-      } while (address == null || address.trim().isEmpty);
+      } while (address.trim().isEmpty);
 
       // Step 3: Find the parking space by address
       final foundParkingSpaceIndex =
@@ -224,7 +224,7 @@ class ParkingSpaceOperations extends SetMainPage {
         } else {
           parkingSpaceId = int.tryParse(idInput);
         }
-      } while (idInput == null || idInput.isEmpty || parkingSpaceId == null);
+      } while (idInput.isEmpty || parkingSpaceId == null);
 
       // Step 3: Find the parking space by ID
       final parkingSpaceIndex =

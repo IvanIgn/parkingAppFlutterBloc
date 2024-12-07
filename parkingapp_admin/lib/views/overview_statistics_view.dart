@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class OverviewStatisticsScreen extends StatelessWidget {
-  const OverviewStatisticsScreen({super.key});
+class OverviewStatisticsView extends StatelessWidget {
+  const OverviewStatisticsView({super.key});
 
   @override
   Widget build(BuildContext context) {

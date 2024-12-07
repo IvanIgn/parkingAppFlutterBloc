@@ -105,7 +105,7 @@ class VehicleRepository {
   }
 
   Future<Vehicle> getVehicleById(int id) async {
-    final uri = Uri.parse("http://localhost:8080/vehicles/${id}");
+    final uri = Uri.parse("http://localhost:8080/vehicles/$id");
 
     Response response = await http.get(
       uri,
@@ -143,7 +143,7 @@ class VehicleRepository {
   }
 
   Future<Vehicle> deleteVehicle(int id) async {
-    final uri = Uri.parse("http://localhost:8080/vehicles/${id}");
+    final uri = Uri.parse("http://localhost:8080/vehicles/$id");
 
     Response response = await http.delete(
       uri,
@@ -161,7 +161,7 @@ class VehicleRepository {
   }
 
   Future<Vehicle> updateVehicle(int id, Vehicle vehicle) async {
-    final uri = Uri.parse("http://localhost:8080/vehicles/${id}");
+    final uri = Uri.parse("http://localhost:8080/vehicles/$id");
 
     Response response = await http.put(
       uri,
