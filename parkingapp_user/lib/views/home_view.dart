@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _views = [
       const VehicleManagementView(),
       const ParkingSpaceSelectionScreen(),
-      //const ActiveParkingView(),
+      // const ActiveParkingView(),
     ];
   }
 

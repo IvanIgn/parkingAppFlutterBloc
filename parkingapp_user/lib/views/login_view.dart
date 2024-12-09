@@ -20,29 +20,36 @@ class LoginView extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LoginFormView(onLoginSuccess: onLoginSuccess),
-                  ),
-                );
-              },
-              child: const Text("Logga In"),
+            // Using SizedBox for uniform width
+            SizedBox(
+              width: 200, // Specify the desired button width
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          LoginFormView(onLoginSuccess: onLoginSuccess),
+                    ),
+                  );
+                },
+                child: const Text("Logga In"),
+              ),
             ),
             const SizedBox(height: 10), // Added spacing between the buttons
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RegistrationView(),
-                  ),
-                );
-              },
-              child: const Text("Registrera Dig"),
+            SizedBox(
+              width: 200, // Same width for the second button
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegistrationView(),
+                    ),
+                  );
+                },
+                child: const Text("Registrera Dig"),
+              ),
             ),
           ],
         ),
