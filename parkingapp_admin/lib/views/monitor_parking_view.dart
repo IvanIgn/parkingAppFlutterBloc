@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:shared/shared.dart';
 
-class MonitorParkingView extends StatefulWidget {
-  const MonitorParkingView({super.key});
+class MonitorParkingsView extends StatefulWidget {
+  const MonitorParkingsView({super.key});
 
   @override
-  _MonitorParkingViewState createState() => _MonitorParkingViewState();
+  MonitorParkingSViewState createState() => MonitorParkingSViewState();
 }
 
-class _MonitorParkingViewState extends State<MonitorParkingView> {
+class MonitorParkingSViewState extends State<MonitorParkingsView> {
   late Future<List<Parking>> _parkingsFuture;
 
   @override
@@ -103,101 +103,6 @@ class _MonitorParkingViewState extends State<MonitorParkingView> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddParkingDialog(context);
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _showAddParkingDialog(BuildContext context) {
-    final TextEditingController idController = TextEditingController();
-    final TextEditingController startTimeController = TextEditingController();
-    final TextEditingController endTimeController = TextEditingController();
-    final TextEditingController regNumController = TextEditingController();
-    final TextEditingController addressController = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Skapa ny parkering"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Parkerings-ID',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: startTimeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Starttid (yyyy-mm-dd hh:mm:ss)',
-                  ),
-                  keyboardType: TextInputType.datetime,
-                ),
-                TextField(
-                  controller: endTimeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Sluttid (yyyy-mm-dd hh:mm:ss)',
-                  ),
-                  keyboardType: TextInputType.datetime,
-                ),
-                TextField(
-                  controller: regNumController,
-                  decoration: const InputDecoration(
-                    labelText: 'Fordonsnummer',
-                  ),
-                ),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Adress',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Avbryt"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Parking newParking = Parking(
-                  id: int.parse(idController.text),
-                  startTime: DateTime.parse(startTimeController.text),
-                  endTime: DateTime.parse(endTimeController.text),
-                  vehicle: Vehicle(
-                      regNumber: regNumController.text,
-                      vehicleType:
-                          'Car'), // Replace 'Car' with the appropriate vehicle type
-                  parkingSpace: ParkingSpace(
-                    address: addressController.text,
-                    pricePerHour: 0, // Replace 0 with the appropriate value
-                  ),
-                );
-
-                await ParkingRepository.instance.createParking(newParking);
-
-                Navigator.of(context).pop();
-                _refreshParkings();
-              },
-              child: const Text("Spara"),
-            ),
-          ],
-        );
-      },
     );
   }
 

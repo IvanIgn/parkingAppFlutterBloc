@@ -22,6 +22,74 @@ class _RegistrationViewState extends State<RegistrationView> {
   final PersonRepository _personRepository = PersonRepository.instance;
   late Future<Person> _personFuture;
 
+  // void _register() async {
+  //   final name = nameController.text;
+  //   final personNum = personNumController.text;
+  //   final confirmPersonNum = confirmPersonNumController.text;
+
+  //   setState(() {
+  //     nameError =
+  //         name.isEmpty || !Validator.isString(name) ? "Ogiltigt namn" : null;
+  //     personNumError = personNum != confirmPersonNum
+  //         ? "Personnummer matchar inte"
+  //         : personNum.length < 12
+  //             ? "Personnumret måste innehålla 12 tecken"
+  //             : null;
+  //   });
+
+  //   if (nameError == null && personNumError == null) {
+  //     try {
+  //       final personList = await _personRepository.getAllPersons();
+  //       final personMap = {
+  //         for (var person in personList) person.personNumber: person
+  //       };
+
+  //       if (personMap.containsKey(personNum)) {
+  //         // final existingPersonName = personMap[personNum]?.name;
+  //         setState(() {
+  //           personNumError =
+  //               'Personen med personnummer "$personNum" finns redan.';
+  //         });
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //               content: Text(
+  //                   'Personen med personnummer "$personNum" finns redan.')),
+  //         );
+  //         return;
+  //       } else {
+  //         // Create and add the person
+  //         final newPerson = Person(
+  //           id: 0, // ID will be assigned by the server
+  //           name: name,
+  //           personNumber: personNum,
+  //         );
+
+  //         await _personRepository.createPerson(newPerson);
+
+  //         // Notify user of success
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(content: Text("Registrering framgångsrik")),
+  //         );
+
+  //         // Clear inputs after successful registration
+  //         nameController.clear();
+  //         personNumController.clear();
+  //         confirmPersonNumController.clear();
+  //       }
+  //     } catch (e) {
+  //       // Handle errors during registration
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Ett fel uppstod: $e")),
+  //       );
+  //     }
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //           content: Text("Kontrollera uppgifterna och försök igen")),
+  //     );
+  //   }
+  // }
+
   void _register() async {
     final name = nameController.text;
     final personNum = personNumController.text;
@@ -45,7 +113,6 @@ class _RegistrationViewState extends State<RegistrationView> {
         };
 
         if (personMap.containsKey(personNum)) {
-          // final existingPersonName = personMap[personNum]?.name;
           setState(() {
             personNumError =
                 'Personen med personnummer "$personNum" finns redan.';
@@ -75,6 +142,9 @@ class _RegistrationViewState extends State<RegistrationView> {
           nameController.clear();
           personNumController.clear();
           confirmPersonNumController.clear();
+
+          // Navigate back to the login view
+          Navigator.of(context).pop();
         }
       } catch (e) {
         // Handle errors during registration

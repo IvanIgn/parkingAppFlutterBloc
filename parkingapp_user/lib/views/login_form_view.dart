@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cli/utils/validator.dart';
 import 'package:client_repositories/async_http_repos.dart';
-import 'package:shared/shared.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginFormView extends StatefulWidget {
   //const LoginFormView({super.key});
@@ -41,25 +41,27 @@ class _LoginFormViewState extends State<LoginFormView> {
           for (var person in personList) person.personNumber: person
         };
 
-        if (!personMap.containsKey(personNum)) {
-          final existingPersonName = personMap[personNum]?.name;
+        if (!personMap.containsKey(personNum) ||
+            personMap[personNum]?.name != personName) {
           setState(() {
             personNumError =
-                'Personen med personnummer "$personNum" finns inte.';
+                'Personen "$personName" med personnummer "$personNum" finns inte.';
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(
-                    'Personen  med personnummer "$personNum" finns inte.')),
+                    'Personen "$personName"  med personnummer "$personNum" finns inte.')),
           );
           return;
-        } else {
+        } else if (personMap[personNum]?.name == personName) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Inloggad framgångsrikt")),
           );
-          // Navigate to the next screen or perform login action here
-          //navigate to the next screen or perform login action here
-          widget.onLoginSuccess();
+          widget.onLoginSuccess(); // Call the success callback
+          Navigator.pop(context); // Go back to the previous screen
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString('loggedInName', personName);
+          prefs.setString('loggedInPersonNum', personNum);
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

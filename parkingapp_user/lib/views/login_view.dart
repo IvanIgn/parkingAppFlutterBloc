@@ -50,10 +50,3 @@ class LoginView extends StatelessWidget {
     );
   }
 }
-
-
-// import 'dart:io' 
-// show Platform; // Import the Platform class from dart:io
-
-
-// String hostname = Platform.isAndroid ? "10.0.2.2" : "localhost"; // Android emulator

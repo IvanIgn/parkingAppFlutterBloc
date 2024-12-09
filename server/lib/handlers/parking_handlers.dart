@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 final ParkingRepository parkingRepo = ParkingRepository.instance;
 
 /// GET /parkings
+
 Future<Response> getAllParkingsHandler(Request request) async {
   final parkings = await parkingRepo.getAll();
   final payload = parkings?.map((p) => (p).toJson()).toList();

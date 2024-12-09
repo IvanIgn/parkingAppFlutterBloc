@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:parkingapp_admin/views/manage_parking_view.dart' as manage;
+import 'package:parkingapp_admin/views/manage_parkingspaces_view.dart'
+    as manage;
 import 'package:parkingapp_admin/views/monitor_parking_view.dart' as monitor;
 import 'package:parkingapp_admin/views/overview_statistics_view.dart'
     as overview;
@@ -21,8 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // List of screens for each navigation item
   final List<Widget> _screens = [
-    const manage.ManageParkingView(),
-    const monitor.MonitorParkingView(),
+    const manage.ManageParkingSpacesView(),
+    const monitor.MonitorParkingsView(),
     const overview.OverviewStatisticsView(),
   ];
 
