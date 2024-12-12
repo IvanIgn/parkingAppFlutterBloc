@@ -4,6 +4,8 @@ import 'package:parkingapp_admin/views/manage_parkingspaces_view.dart'
 import 'package:parkingapp_admin/views/monitor_parking_view.dart' as monitor;
 import 'package:parkingapp_admin/views/overview_statistics_view.dart'
     as overview;
+import 'package:parkingapp_admin/views/manage_persons_view.dart' as manage;
+import 'package:parkingapp_admin/views/manage_vehicles_view.dart' as manage;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +19,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<bool> _isHovered = [
     false,
     false,
+    false,
+    false,
     false
   ]; // Track hover states for each button
 
   // List of screens for each navigation item
   final List<Widget> _screens = [
+    const manage.ManagePersonsView(),
+    const manage.ManageVehiclesView(),
     const manage.ManageParkingSpacesView(),
     const monitor.MonitorParkingsView(),
     const overview.OverviewStatisticsView(),
@@ -45,16 +51,26 @@ class _HomeScreenState extends State<HomeScreen> {
             destinations: [
               _buildNavigationRailDestination(
                 index: 0,
+                icon: Icons.person,
+                label: 'Hantera Personer',
+              ),
+              _buildNavigationRailDestination(
+                index: 1,
+                icon: Icons.directions_car,
+                label: 'Hantera Fordoner',
+              ),
+              _buildNavigationRailDestination(
+                index: 2,
                 icon: Icons.edit_location_alt,
                 label: 'Hantera Parkeringsplatser',
               ),
               _buildNavigationRailDestination(
-                index: 1,
-                icon: Icons.monitor_heart,
+                index: 3,
+                icon: Icons.local_parking,
                 label: 'Övervakning',
               ),
               _buildNavigationRailDestination(
-                index: 2,
+                index: 4,
                 icon: Icons.bar_chart,
                 label: 'Statistik',
               ),

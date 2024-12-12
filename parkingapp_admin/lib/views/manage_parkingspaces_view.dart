@@ -24,14 +24,6 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
     _refreshParkingSpaces();
   }
 
-  // Future<void> _loadLoggedInUser() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     loggedInName = prefs.getString('loggedInName');
-  //     loggedInPersonNum = prefs.getString('loggedInPersonNum');
-  //   });
-  // }
-
   /// Loads all parking spaces from the repository.
   void _refreshParkingSpaces() {
     setState(() {
@@ -39,17 +31,6 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
           ParkingSpaceRepository.instance.getAllParkingSpaces();
     });
   }
-
-  // /// Filters the parking spaces to show only available ones based on IDs.
-  // void _showAvailableParkingSpaces() {
-  //   setState(() {
-  //     _parkingSpacesFuture = _parkingSpacesFuture.then((parkingSpaces) {
-  //       return parkingSpaces
-  //           .where((space) => listAvailableParkingSpaces.contains(space.id))
-  //           .toList();
-  //     });
-  //   });
-  // }
 
   /// Displays a dialog to add a new parking space.
   void _showAddParkingSpaceDialog(BuildContext context) {
@@ -310,7 +291,7 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
             separatorBuilder: (context, index) {
               return const Divider(
                 thickness: 1,
-                color: Colors.grey,
+                color: Colors.black87,
               );
             },
           );
