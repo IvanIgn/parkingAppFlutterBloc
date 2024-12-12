@@ -4,8 +4,6 @@
 // import 'package:shared_preferences/shared_preferences.dart';
 
 // class LoginFormView extends StatefulWidget {
-//   //const LoginFormView({super.key});
-
 //   const LoginFormView({super.key, required this.onLoginSuccess});
 
 //   final VoidCallback onLoginSuccess;
@@ -23,9 +21,10 @@
 
 //   final PersonRepository _personRepository = PersonRepository.instance;
 
+//   /// Perform login and update the shared preferences.
 //   void _login() async {
-//     final personName = nameController.text;
-//     final personNum = personNumController.text;
+//     final personName = nameController.text.trim();
+//     final personNum = personNumController.text.trim();
 
 //     setState(() {
 //       personNameError = personName.isEmpty || !Validator.isString(personName)
@@ -36,6 +35,7 @@
 
 //     if (personNameError == null && personNumError == null) {
 //       try {
+//         // Fetch user data from the repository
 //         final personList = await _personRepository.getAllPersons();
 //         final personMap = {
 //           for (var person in personList) person.personNumber: person
@@ -53,16 +53,19 @@
 //                     'Personen "$personName"  med personnummer "$personNum" finns inte.')),
 //           );
 //           return;
-//         } else if (personMap[personNum]?.name == personName) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text("Inloggad framgångsrikt")),
-//           );
-//           widget.onLoginSuccess(); // Call the success callback
-//           Navigator.pop(context); // Go back to the previous screen
-//           final prefs = await SharedPreferences.getInstance();
-//           prefs.setString('loggedInName', personName);
-//           prefs.setString('loggedInPersonNum', personNum);
 //         }
+
+//         // Save login state and invoke success callback
+//         final prefs = await SharedPreferences.getInstance();
+//         await prefs.setString('loggedInName', personName);
+//         await prefs.setString('loggedInPersonNum', personNum);
+//         Navigator.of(context).pop();
+
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(content: Text("Inloggad framgångsrikt")),
+//         );
+
+//         widget.onLoginSuccess(); // Notify parent widget of login success
 //       } catch (e) {
 //         ScaffoldMessenger.of(context).showSnackBar(
 //           SnackBar(content: Text("Ett fel uppstod: $e")),
@@ -135,6 +138,29 @@
 //   }
 // }
 
+// class LoginScreen extends StatelessWidget {
+//   final VoidCallback onLoginSuccess;
+
+//   const LoginScreen({super.key, required this.onLoginSuccess});
+
+//   void _attemptLogin() {
+//     // Simulate login success
+//     onLoginSuccess();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: ElevatedButton(
+//         onPressed: () => Navigator.of(context).pop(),
+//         child: const Text("Logga In"),
+
+//         // Redirect to the first main screen post-login\]
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:cli/utils/validator.dart';
 import 'package:client_repositories/async_http_repos.dart';
@@ -157,6 +183,24 @@ class _LoginFormViewState extends State<LoginFormView> {
   String? personNumError;
 
   final PersonRepository _personRepository = PersonRepository.instance;
+
+  /// Displays a loading spinner for 2 seconds before calling the login logic.
+  Future<void> _showLoadingAndLogin() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    await Future.delayed(Duration(seconds: 2)); // Simulate a delay
+
+    Navigator.of(context).pop(); // Close the spinner
+    _login(); // Proceed with login logic
+  }
 
   /// Perform login and update the shared preferences.
   void _login() async {
@@ -255,7 +299,7 @@ class _LoginFormViewState extends State<LoginFormView> {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _showLoadingAndLogin,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 40, vertical: 16),
@@ -274,40 +318,3 @@ class _LoginFormViewState extends State<LoginFormView> {
     );
   }
 }
-
-class LoginScreen extends StatelessWidget {
-  final VoidCallback onLoginSuccess;
-
-  const LoginScreen({super.key, required this.onLoginSuccess});
-
-  void _attemptLogin() {
-    // Simulate login success
-    onLoginSuccess();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text("Logga In"),
-
-        // Redirect to the first main screen post-login\]
-      ),
-    );
-  }
-}
-
-
-
-
-// // class LoginScreen extends StatelessWidget {
-// //   final VoidCallback onLoginSuccess;
-
-// //   const LoginScreen({super.key, required this.onLoginSuccess});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return LoginFormView(onLoginSuccess: onLoginSuccess);
-// //   }
-// // }
