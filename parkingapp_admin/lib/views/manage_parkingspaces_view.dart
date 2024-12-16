@@ -202,13 +202,13 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Parkeringsplatser"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: //_showAvailableParkingSpaces,
-                _refreshParkingSpaces,
-          ),
-        ],
+        //  actions: [
+        // IconButton(
+        //   icon: const Icon(Icons.filter_list),
+        //  onPressed: //_showAvailableParkingSpaces,
+        //      _refreshParkingSpaces,
+        // ),
+        // ],
       ),
       body: FutureBuilder<List<ParkingSpace>>(
         future: _parkingSpacesFuture,
