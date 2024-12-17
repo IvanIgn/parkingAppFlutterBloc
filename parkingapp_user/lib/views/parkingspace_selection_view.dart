@@ -16,6 +16,7 @@ class _ParkingSpaceSelectionScreenState
     extends State<ParkingSpaceSelectionScreen> {
   late Future<List<ParkingSpace>> _parkingSpacesFuture;
   ParkingSpace? _selectedParkingSpace; // Tracks the selected parking space
+  bool _isParkingActive = false; // Tracks if parking has started
 
   @override
   void initState() {
@@ -24,15 +25,42 @@ class _ParkingSpaceSelectionScreenState
     _refreshParkingSpaces();
   }
 
+  // Future<void> _loadSelectedParkingSpace() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+
+  //   if (selectedParkingSpaceJson != null) {
+  //     final Map<String, dynamic> parkingSpaceData =
+  //         json.decode(selectedParkingSpaceJson);
+  //     setState(() {
+  //       _selectedParkingSpace = ParkingSpace.fromJson(parkingSpaceData);
+  //     });
+  //   }
+  // }
+
   Future<void> _loadSelectedParkingSpace() async {
     final prefs = await SharedPreferences.getInstance();
-    final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
 
+    // Load selected parking space
+    final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
     if (selectedParkingSpaceJson != null) {
       final Map<String, dynamic> parkingSpaceData =
           json.decode(selectedParkingSpaceJson);
       setState(() {
         _selectedParkingSpace = ParkingSpace.fromJson(parkingSpaceData);
+      });
+    }
+
+    // Load active parking state
+    final activeParkingJson = prefs.getString('activeParkingSpace');
+    final isParkingActive = prefs.getBool('isParkingActive') ?? false;
+
+    if (activeParkingJson != null && isParkingActive) {
+      final Map<String, dynamic> activeParkingData =
+          json.decode(activeParkingJson);
+      setState(() {
+        _selectedParkingSpace = ParkingSpace.fromJson(activeParkingData);
+        _isParkingActive = true;
       });
     }
   }
@@ -54,16 +82,39 @@ class _ParkingSpaceSelectionScreenState
     });
   }
 
-  void _startParking() {
-    if (_selectedParkingSpace != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ParkingSessionScreen(
-            parkingSpace: _selectedParkingSpace!,
-          ),
-        ),
-      );
+  // void _toggleParkingState() {
+  //   setState(() {
+  //     _isParkingActive = !_isParkingActive; // Toggle parking state
+  //   });
+  // }
+
+  void _clearSelectedParkingSpace() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selectedParkingSpace');
+    setState(() {
+      _selectedParkingSpace = null;
+      _isParkingActive = false;
+    });
+  }
+
+  void _toggleParkingState() async {
+    if (_selectedParkingSpace == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _isParkingActive = !_isParkingActive; // Toggle parking state
+    });
+
+    if (_isParkingActive) {
+      // Save the selected parking space to preferences when parking starts
+      final parkingSpaceJson = json.encode(_selectedParkingSpace!.toJson());
+      await prefs.setString('activeParkingSpace', parkingSpaceJson);
+      await prefs.setBool('isParkingActive', true);
+    } else {
+      // Clear parking data when parking stops
+      await prefs.remove('activeParkingSpace');
+      await prefs.setBool('isParkingActive', false);
     }
   }
 
@@ -100,11 +151,18 @@ class _ParkingSpaceSelectionScreenState
               if (_selectedParkingSpace != null)
                 Container(
                   padding: const EdgeInsets.all(16.0),
-                  color: Colors.green.withOpacity(0.2),
+                  color: _isParkingActive
+                      ? Colors.red.withOpacity(0.2)
+                      : Colors.green.withOpacity(0.2),
                   child: Text(
-                    'Selected Parking Space:\n'
-                    'ID: ${_selectedParkingSpace!.id}\n'
-                    'Address: ${_selectedParkingSpace!.address}',
+                    _isParkingActive
+                        ? 'You started parking at:\n'
+                            'ID: ${_selectedParkingSpace!.id}\n'
+                            'Address: ${_selectedParkingSpace!.address}\n'
+                            'Price per hour: ${_selectedParkingSpace!.pricePerHour} SEK'
+                        : 'Selected Parking Space:\n'
+                            'ID: ${_selectedParkingSpace!.id}\n'
+                            'Address: ${_selectedParkingSpace!.address}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
@@ -137,12 +195,46 @@ class _ParkingSpaceSelectionScreenState
                           ),
                         ],
                       ),
+                      // trailing: Row(
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   children: [
+                      //     ElevatedButton(
+                      //       onPressed: () {
+                      //         _saveSelectedParkingSpace(parkingSpace);
+                      //       },
+                      //       style: ElevatedButton.styleFrom(
+                      //         backgroundColor:
+                      //             isSelected ? Colors.green : Colors.blue,
+                      //       ),
+                      //       child: Text(isSelected ? "Selected" : "Select"),
+                      //     ),
+                      //     const SizedBox(width: 10),
+                      //     if (isSelected)
+                      //       ElevatedButton(
+                      //         onPressed: _toggleParkingState,
+                      //         style: ElevatedButton.styleFrom(
+                      //           backgroundColor: _isParkingActive
+                      //               ? Colors.red
+                      //               : Colors.orange,
+                      //         ),
+                      //         child: Text(_isParkingActive
+                      //             ? "Stop Parking"
+                      //             : "Start Parking"),
+                      //       ),
+                      //   ],
+                      // ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              _saveSelectedParkingSpace(parkingSpace);
+                              if (isSelected) {
+                                // If the parking space is already selected, deselect it
+                                _clearSelectedParkingSpace();
+                              } else {
+                                // Select the parking space
+                                _saveSelectedParkingSpace(parkingSpace);
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
@@ -153,11 +245,15 @@ class _ParkingSpaceSelectionScreenState
                           const SizedBox(width: 10),
                           if (isSelected)
                             ElevatedButton(
-                              onPressed: _startParking,
+                              onPressed: _toggleParkingState,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
+                                backgroundColor: _isParkingActive
+                                    ? Colors.red
+                                    : Colors.orange,
                               ),
-                              child: const Text("Start Parking"),
+                              child: Text(_isParkingActive
+                                  ? "Stop Parking"
+                                  : "Start Parking"),
                             ),
                         ],
                       ),
@@ -174,31 +270,6 @@ class _ParkingSpaceSelectionScreenState
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class ParkingSessionScreen extends StatelessWidget {
-  final ParkingSpace parkingSpace;
-
-  const ParkingSessionScreen({super.key, required this.parkingSpace});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Parking Session"),
-      ),
-      body: Center(
-        child: Text(
-          'You started parking at:\n'
-          'ID: ${parkingSpace.id}\n'
-          'Address: ${parkingSpace.address}\n'
-          'Price per hour: ${parkingSpace.pricePerHour} SEK',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
       ),
     );
   }

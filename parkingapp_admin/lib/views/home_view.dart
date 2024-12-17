@@ -143,7 +143,6 @@ import 'package:parkingapp_admin/views/manage_persons_view.dart' as persons;
 import 'package:parkingapp_admin/views/manage_vehicles_view.dart' as vehicles;
 
 import 'package:parkingapp_admin/views/settings_view.dart' as settings;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

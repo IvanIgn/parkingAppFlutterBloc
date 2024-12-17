@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart'; // To access the global isDarkModeNotifier
+// To access the global isDarkModeNotifier
 import 'login_view.dart';
 import 'vehicle_management_view.dart';
 import 'parkingspace_selection_view.dart';
+import 'overview_view.dart';
 import 'settings_view.dart'; // Import the SettingsView
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _views = [
       const VehicleManagementView(),
       const ParkingSpaceSelectionScreen(),
+      const OverviewView(),
       const SettingsView(), // Add SettingsView as the last tab
     ];
     _loadLoggedInUser();
@@ -130,6 +132,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.local_parking),
                   label: 'Parkeringsplats',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bar_chart),
+                  label: 'Översikt',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.settings),
