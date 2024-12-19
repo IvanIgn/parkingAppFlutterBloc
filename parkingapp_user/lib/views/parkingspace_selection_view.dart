@@ -25,19 +25,6 @@ class _ParkingSpaceSelectionScreenState
     _refreshParkingSpaces();
   }
 
-  // Future<void> _loadSelectedParkingSpace() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
-
-  //   if (selectedParkingSpaceJson != null) {
-  //     final Map<String, dynamic> parkingSpaceData =
-  //         json.decode(selectedParkingSpaceJson);
-  //     setState(() {
-  //       _selectedParkingSpace = ParkingSpace.fromJson(parkingSpaceData);
-  //     });
-  //   }
-  // }
-
   Future<void> _loadSelectedParkingSpace() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -82,11 +69,23 @@ class _ParkingSpaceSelectionScreenState
     });
   }
 
-  // void _toggleParkingState() {
-  //   setState(() {
-  //     _isParkingActive = !_isParkingActive; // Toggle parking state
-  //   });
-  // }
+  void _checkSelectedVehicle(Function action) async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+    if (selectedVehicleJson == null) {
+      // Show a message if no vehicle is selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Välj först en fordon"),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      // Perform the action if a vehicle is selected
+      action();
+    }
+  }
 
   void _clearSelectedParkingSpace() async {
     final prefs = await SharedPreferences.getInstance();
@@ -98,9 +97,21 @@ class _ParkingSpaceSelectionScreenState
   }
 
   void _toggleParkingState() async {
-    if (_selectedParkingSpace == null) return;
-
     final prefs = await SharedPreferences.getInstance();
+    final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+    if (selectedVehicleJson == null) {
+      // Show a message if no vehicle is selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Välj först en fordon"),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+
+    if (_selectedParkingSpace == null) return;
 
     setState(() {
       _isParkingActive = !_isParkingActive; // Toggle parking state
@@ -195,57 +206,58 @@ class _ParkingSpaceSelectionScreenState
                           ),
                         ],
                       ),
-                      // trailing: Row(
-                      //   mainAxisSize: MainAxisSize.min,
-                      //   children: [
-                      //     ElevatedButton(
-                      //       onPressed: () {
-                      //         _saveSelectedParkingSpace(parkingSpace);
-                      //       },
-                      //       style: ElevatedButton.styleFrom(
-                      //         backgroundColor:
-                      //             isSelected ? Colors.green : Colors.blue,
-                      //       ),
-                      //       child: Text(isSelected ? "Selected" : "Select"),
-                      //     ),
-                      //     const SizedBox(width: 10),
-                      //     if (isSelected)
-                      //       ElevatedButton(
-                      //         onPressed: _toggleParkingState,
-                      //         style: ElevatedButton.styleFrom(
-                      //           backgroundColor: _isParkingActive
-                      //               ? Colors.red
-                      //               : Colors.orange,
-                      //         ),
-                      //         child: Text(_isParkingActive
-                      //             ? "Stop Parking"
-                      //             : "Start Parking"),
-                      //       ),
-                      //   ],
-                      // ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     _checkSelectedVehicle(() {
+                          //       if (isSelected) {
+                          //         _clearSelectedParkingSpace();
+                          //       } else {
+                          //         _saveSelectedParkingSpace(parkingSpace);
+                          //       }
+                          //     });
+                          //   },
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor:
+                          //         isSelected ? Colors.green : Colors.blue,
+                          //   ),
+                          //   child: Text(isSelected ? "Selected" : "Select"),
+                          // ),
                           ElevatedButton(
-                            onPressed: () {
-                              if (isSelected) {
-                                // If the parking space is already selected, deselect it
-                                _clearSelectedParkingSpace();
-                              } else {
-                                // Select the parking space
-                                _saveSelectedParkingSpace(parkingSpace);
-                              }
-                            },
+                            onPressed: _isParkingActive && !isSelected
+                                ? () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text("Stoppa parkeringen först"),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  }
+                                : () {
+                                    _checkSelectedVehicle(() {
+                                      if (isSelected) {
+                                        _clearSelectedParkingSpace();
+                                      } else {
+                                        _saveSelectedParkingSpace(parkingSpace);
+                                      }
+                                    });
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   isSelected ? Colors.green : Colors.blue,
                             ),
                             child: Text(isSelected ? "Selected" : "Select"),
                           ),
+
                           const SizedBox(width: 10),
                           if (isSelected)
                             ElevatedButton(
-                              onPressed: _toggleParkingState,
+                              onPressed: () {
+                                _checkSelectedVehicle(_toggleParkingState);
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _isParkingActive
                                     ? Colors.red

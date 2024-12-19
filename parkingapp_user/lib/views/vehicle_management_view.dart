@@ -13,6 +13,7 @@ class VehicleManagementView extends StatefulWidget {
 
 class _VehicleManagementViewState extends State<VehicleManagementView> {
   late Future<List<Vehicle>> _vehiclesFuture;
+
   String? loggedInName;
   String? loggedInPersonNum;
   Vehicle? _selectedVehicle;
@@ -61,9 +62,28 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     });
   }
 
-  void _selectVehicle(Vehicle vehicle) {
+  void _selectVehicle(Vehicle vehicle) async {
+    final prefs = await SharedPreferences.getInstance();
+    final isParkingActive = prefs.getBool('isParkingActive') ?? false;
+
+    if (isParkingActive) {
+      // If parking is active, prevent vehicle unselection
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Stoppa parkeringen först"),
+          //backgroundColor: Colors.grey,
+          duration: Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+
     _saveSelectedVehicle(vehicle); // Save selected vehicle
   }
+
+  // void _selectVehicle(Vehicle vehicle) {
+  //   _saveSelectedVehicle(vehicle); // Save selected vehicle
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -169,11 +189,26 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                           ElevatedButton(
                             onPressed: () async {
                               if (isSelected) {
-                                // Clear the selected vehicle
+                                // Check if parking is active
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                await prefs.remove('selectedVehicle');
+                                final isParkingActive =
+                                    prefs.getBool('isParkingActive') ?? false;
 
+                                if (isParkingActive) {
+                                  // Show the message if parking is active
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Stoppa parkeringen först"),
+                                      // backgroundColor: Colors.grey,
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                // Clear the selected vehicle
+                                await prefs.remove('selectedVehicle');
                                 setState(() {
                                   _selectedVehicle =
                                       null; // Reset selected vehicle

@@ -42,6 +42,7 @@ class SettingsView extends StatelessWidget {
                         content: Text(
                           'Tema ändrades till ${value ? 'Mörkt' : 'Ljust'} läge',
                         ),
+                        duration: const Duration(seconds: 1),
                       ),
                     );
                   },
