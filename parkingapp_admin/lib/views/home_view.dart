@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildNavigationRailDestination(
                 index: 5,
                 icon: Icons.settings,
-                label: 'Settings',
+                label: 'Inställningar',
               ),
             ],
           ),

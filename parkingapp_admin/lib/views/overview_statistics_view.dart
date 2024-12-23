@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:intl/intl.dart';
+import 'parking_details_view.dart';
 
 class OverviewStatisticsView extends StatefulWidget {
   const OverviewStatisticsView({super.key});
@@ -85,6 +86,17 @@ class _OverviewStatisticsViewState extends State<OverviewStatisticsView> {
                   style: const TextStyle(fontSize: 14),
                 ),
             ],
+          ),
+          trailing: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ParkingDetailsView(parking: parking),
+                ),
+              );
+            },
+            child: const Text('Mer info'),
           ),
         );
       },
