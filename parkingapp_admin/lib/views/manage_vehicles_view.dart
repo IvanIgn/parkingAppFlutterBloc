@@ -31,7 +31,7 @@
 
 //   void _showAddVehicleDialog(BuildContext context) {
 //     final TextEditingController regNumberController = TextEditingController();
-//     final TextEditingController vehicleTypeController = TextEditingController();
+//     String selectedVehicleType = 'Bil';
 
 //     showDialog(
 //       context: context,
@@ -49,8 +49,25 @@
 //                     labelText: 'Registreringsnummer',
 //                   ),
 //                 ),
-//                 TextField(
-//                   controller: vehicleTypeController,
+//                 DropdownButtonFormField<String>(
+//                   value: selectedVehicleType,
+//                   items: <String>[
+//                     'Bil',
+//                     'Lastbil',
+//                     'Motorcykel',
+//                     'Moped',
+//                     'Annat'
+//                   ].map((String value) {
+//                     return DropdownMenuItem<String>(
+//                       value: value,
+//                       child: Text(value),
+//                     );
+//                   }).toList(),
+//                   onChanged: (newValue) {
+//                     setState(() {
+//                       selectedVehicleType = newValue!;
+//                     });
+//                   },
 //                   decoration: const InputDecoration(
 //                     labelText: 'Fordonstyp',
 //                   ),
@@ -68,7 +85,6 @@
 //             ElevatedButton(
 //               onPressed: () async {
 //                 final regNumber = regNumberController.text;
-//                 final vehicleType = vehicleTypeController.text;
 
 //                 if (await _regNumberExists(regNumber)) {
 //                   ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +99,7 @@
 
 //                 final newVehicle = Vehicle(
 //                   regNumber: regNumber,
-//                   vehicleType: vehicleType,
+//                   vehicleType: selectedVehicleType,
 //                 );
 
 //                 await VehicleRepository.instance.createVehicle(newVehicle);
@@ -101,8 +117,7 @@
 //   void _showEditVehicleDialog(BuildContext context, Vehicle vehicle) {
 //     final TextEditingController regNumberController =
 //         TextEditingController(text: vehicle.regNumber);
-//     final TextEditingController vehicleTypeController =
-//         TextEditingController(text: vehicle.vehicleType);
+//     String selectedVehicleType = vehicle.vehicleType;
 
 //     showDialog(
 //       context: context,
@@ -120,8 +135,25 @@
 //                     labelText: 'Registreringsnummer',
 //                   ),
 //                 ),
-//                 TextField(
-//                   controller: vehicleTypeController,
+//                 DropdownButtonFormField<String>(
+//                   value: selectedVehicleType,
+//                   items: <String>[
+//                     'Bil',
+//                     'Motorcykel',
+//                     'Lastbil',
+//                     'Moped',
+//                     'Annat'
+//                   ].map((String value) {
+//                     return DropdownMenuItem<String>(
+//                       value: value,
+//                       child: Text(value),
+//                     );
+//                   }).toList(),
+//                   onChanged: (newValue) {
+//                     setState(() {
+//                       selectedVehicleType = newValue!;
+//                     });
+//                   },
 //                   decoration: const InputDecoration(
 //                     labelText: 'Fordonstyp',
 //                   ),
@@ -139,7 +171,6 @@
 //             ElevatedButton(
 //               onPressed: () async {
 //                 final regNumber = regNumberController.text;
-//                 final vehicleType = vehicleTypeController.text;
 
 //                 if (regNumber != vehicle.regNumber &&
 //                     await _regNumberExists(regNumber)) {
@@ -156,7 +187,7 @@
 //                 final updatedVehicle = Vehicle(
 //                   id: vehicle.id,
 //                   regNumber: regNumber,
-//                   vehicleType: vehicleType,
+//                   vehicleType: selectedVehicleType,
 //                 );
 
 //                 await VehicleRepository.instance
@@ -326,6 +357,11 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
     return vehicles.any((vehicle) => vehicle.regNumber == regNumber);
   }
 
+  bool _isValidRegNumber(String regNumber) {
+    final regExp = RegExp(r'^[A-Z]{3}[0-9]{3}$');
+    return regExp.hasMatch(regNumber);
+  }
+
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
     String selectedVehicleType = 'Bil';
@@ -334,78 +370,93 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Skapa nytt fordon"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: regNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Registreringsnummer',
-                  ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Skapa nytt fordon"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: regNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Registreringsnummer',
+                      ),
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: selectedVehicleType,
+                      items: <String>[
+                        'Bil',
+                        'Lastbil',
+                        'Motorcykel',
+                        'Moped',
+                        'Annat'
+                      ].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedVehicleType = newValue!;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Fordonstyp',
+                      ),
+                    ),
+                  ],
                 ),
-                DropdownButtonFormField<String>(
-                  value: selectedVehicleType,
-                  items: <String>[
-                    'Bil',
-                    'Motorcykel',
-                    'Lastbil',
-                    'Moped',
-                    'Annat'
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedVehicleType = newValue!;
-                    });
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  decoration: const InputDecoration(
-                    labelText: 'Fordonstyp',
-                  ),
+                  child: const Text("Avbryt"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final regNumber = regNumberController.text;
+
+                    if (!_isValidRegNumber(regNumber)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "Fordons registreringsnumret ska följa detta format: ABC123"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (await _regNumberExists(regNumber)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              "Fordonet med detta registreringsnummer $regNumber finns redan"),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final newVehicle = Vehicle(
+                      regNumber: regNumber,
+                      vehicleType: selectedVehicleType,
+                    );
+
+                    await VehicleRepository.instance.createVehicle(newVehicle);
+                    Navigator.of(context).pop();
+                    _refreshVehicles();
+                  },
+                  child: const Text("Spara"),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Avbryt"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final regNumber = regNumberController.text;
-
-                if (await _regNumberExists(regNumber)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "Fordonet med detta registreringsnummer $regNumber finns redan"),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
-
-                final newVehicle = Vehicle(
-                  regNumber: regNumber,
-                  vehicleType: selectedVehicleType,
-                );
-
-                await VehicleRepository.instance.createVehicle(newVehicle);
-                Navigator.of(context).pop();
-                _refreshVehicles();
-              },
-              child: const Text("Spara"),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -420,81 +471,96 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Uppdatera fordon"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: regNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Registreringsnummer',
-                  ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Uppdatera fordon"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: regNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Registreringsnummer',
+                      ),
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: selectedVehicleType,
+                      items: <String>[
+                        'Bil',
+                        'Motorcykel',
+                        'Lastbil',
+                        'Moped',
+                        'Annat'
+                      ].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedVehicleType = newValue!;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Fordonstyp',
+                      ),
+                    ),
+                  ],
                 ),
-                DropdownButtonFormField<String>(
-                  value: selectedVehicleType,
-                  items: <String>[
-                    'Bil',
-                    'Motorcykel',
-                    'Lastbil',
-                    'Moped',
-                    'Annat'
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedVehicleType = newValue!;
-                    });
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  decoration: const InputDecoration(
-                    labelText: 'Fordonstyp',
-                  ),
+                  child: const Text("Avbryt"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final regNumber = regNumberController.text;
+
+                    if (!_isValidRegNumber(regNumber)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "Fordons registreringsnumret ska följa detta format: ABC123"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (regNumber != vehicle.regNumber &&
+                        await _regNumberExists(regNumber)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              "Fordonet med detta registreringsnummer $regNumber finns redan"),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final updatedVehicle = Vehicle(
+                      id: vehicle.id,
+                      regNumber: regNumber,
+                      vehicleType: selectedVehicleType,
+                    );
+
+                    await VehicleRepository.instance
+                        .updateVehicle(vehicle.id, updatedVehicle);
+                    Navigator.of(context).pop();
+                    _refreshVehicles();
+                  },
+                  child: const Text("Spara"),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Avbryt"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final regNumber = regNumberController.text;
-
-                if (regNumber != vehicle.regNumber &&
-                    await _regNumberExists(regNumber)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "Fordonet med detta registreringsnummer $regNumber finns redan"),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
-
-                final updatedVehicle = Vehicle(
-                  id: vehicle.id,
-                  regNumber: regNumber,
-                  vehicleType: selectedVehicleType,
-                );
-
-                await VehicleRepository.instance
-                    .updateVehicle(vehicle.id, updatedVehicle);
-                Navigator.of(context).pop();
-                _refreshVehicles();
-              },
-              child: const Text("Spara"),
-            ),
-          ],
+            );
+          },
         );
       },
     );

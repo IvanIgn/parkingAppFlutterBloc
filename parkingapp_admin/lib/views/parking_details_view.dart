@@ -46,8 +46,8 @@ class ParkingDetailsView extends StatelessWidget {
             buildKeyValue(
                 'Parkeringsplats ID', parking.parkingSpace!.id.toString()),
             buildKeyValue('Address', parking.parkingSpace!.address),
-            buildKeyValue('Pris per timme',
-                parking.parkingSpace!.pricePerHour.toString()),
+            buildKeyValue(
+                'Pris per timme', '${parking.parkingSpace!.pricePerHour} kr'),
           ],
         ),
       ),

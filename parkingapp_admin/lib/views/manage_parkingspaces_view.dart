@@ -120,7 +120,8 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await ParkingRepository.instance.deleteParking(parkingSpace.id);
+                await ParkingSpaceRepository.instance
+                    .deleteParkingSpace(parkingSpace.id);
 
                 Navigator.of(context).pop();
                 _refreshParkingSpaces();
