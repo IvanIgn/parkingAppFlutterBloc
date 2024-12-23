@@ -24,6 +24,11 @@ class _ManagePersonsViewState extends State<ManagePersonsView> {
     });
   }
 
+  Future<bool> _personNumberExists(String personNumber) async {
+    final persons = await PersonRepository.instance.getAllPersons();
+    return persons.any((person) => person.personNumber == personNumber);
+  }
+
   void _showAddPersonDialog(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController personNumberController =
@@ -63,9 +68,23 @@ class _ManagePersonsViewState extends State<ManagePersonsView> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final personNumber = personNumberController.text;
+                final name = nameController.text;
+
+                if (await _personNumberExists(personNumber)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "Personen $name med detta personnummer $personNumber finns redan"),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                  return;
+                }
+
                 final newPerson = Person(
-                  name: nameController.text,
-                  personNumber: personNumberController.text,
+                  name: name,
+                  personNumber: personNumber,
                 );
 
                 await PersonRepository.instance.createPerson(newPerson);
@@ -120,16 +139,29 @@ class _ManagePersonsViewState extends State<ManagePersonsView> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final personNumber = personNumberController.text;
+                final name = nameController.text;
+
+                if (personNumber != person.personNumber &&
+                    await _personNumberExists(personNumber)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "Personen $name med detta personnummer $personNumber finns redan"),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                  return;
+                }
+
                 final updatedPerson = Person(
                   id: person.id,
-                  name: nameController.text,
-                  personNumber: personNumberController.text,
+                  name: name,
+                  personNumber: personNumber,
                 );
 
-                await PersonRepository.instance.updatePerson(
-                  person.id,
-                  updatedPerson,
-                );
+                await PersonRepository.instance
+                    .updatePerson(person.id, updatedPerson);
                 Navigator.of(context).pop();
                 _refreshPersons();
               },

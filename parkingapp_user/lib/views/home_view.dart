@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // To access the global isDarkModeNotifier
 import 'login_view.dart';
