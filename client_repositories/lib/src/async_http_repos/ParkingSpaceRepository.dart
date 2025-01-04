@@ -19,23 +19,21 @@ class ParkingSpaceRepository {
     final uri = Uri.parse('$host:$port/$resource');
 
     // Create a copy of parkingspace without the ID for creation
-    final parkingSpaceData = parkingspace.toJson();
-    parkingSpaceData.remove('id'); // Remove the 'id' field if it exists
+    //final parkingSpaceData = parkingspace.toJson();
+    //parkingSpaceData.remove('id'); // Remove the 'id' field if it exists
 
-    Response response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(parkingSpaceData),
-    );
+    // Response response = await http.post(
+    //   uri,
+    //   headers: {'Content-Type': 'application/json'},
+    //   body: jsonEncode(parkingSpaceData),
+    // );
+    Response response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(parkingspace.toJson()));
 
-    _checkResponse(response);
+    final json = jsonDecode(response.body);
 
-    try {
-      final json = jsonDecode(response.body);
-      return ParkingSpace.fromJson(json);
-    } catch (e) {
-      throw Exception('Failed to parse response: ${response.body}, error: $e');
-    }
+    return ParkingSpace.fromJson(json);
   }
 
   Future<ParkingSpace> getParkingSpaceById(int id) async {

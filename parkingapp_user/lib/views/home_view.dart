@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-// To access the global isDarkModeNotifier
-import 'login_view.dart';
 import 'vehicle_management_view.dart';
 import 'parkingspace_selection_view.dart';
 import 'overview_view.dart';
-import 'settings_view.dart'; // Import the SettingsView
+import 'settings_view.dart';
+import 'login_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:parkingapp_user/blocs/auth/auth_bloc.dart'; // Import RegistrationBloc
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomeViewState createState() => _HomeViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0; // Default selected index
-  bool isLoggedIn = false; // Track login state
-  String? loggedInName; // Logged-in user's name
-  String? loggedInPersonNum; // Logged-in user's personal number
-
-  // Define all views
   late final List<Widget> _views;
 
   @override
@@ -32,30 +27,20 @@ class _HomeScreenState extends State<HomeScreen> {
       const OverviewView(),
       const SettingsView(), // Add SettingsView as the last tab
     ];
-    _loadLoggedInUser();
+
+    // Check authentication status on initialization
+    context.read<AuthBloc>().add(CheckAuthStatus());
   }
 
-  // Fetch logged-in user data from SharedPreferences
-  Future<void> _loadLoggedInUser() async {
-    final prefs = await SharedPreferences.getInstance();
+  // Handle navigation between tabs
+  void _onItemTapped(int index) {
     setState(() {
-      loggedInName = prefs.getString('loggedInName');
-      loggedInPersonNum = prefs.getString('loggedInPersonNum');
-      isLoggedIn = loggedInName != null && loggedInPersonNum != null;
+      _selectedIndex = index;
     });
   }
 
-  // Handle successful login
-  void _onLoginSuccess() {
-    _loadLoggedInUser(); // Refresh logged-in user data
-    setState(() {
-      isLoggedIn = true;
-      _selectedIndex = 0; // Navigate to the first main view
-    });
-  }
-
-  // Handle logout
-  Future<void> _logout() async {
+  // Show a logout confirmation dialog
+  Future<void> _showLogoutDialog() async {
     final confirmLogout = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -77,33 +62,33 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (confirmLogout == true) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear(); // Clear user data
-      setState(() {
-        isLoggedIn = false; // Return to the login view
-        loggedInName = null;
-        loggedInPersonNum = null;
-      });
+      context.read<AuthBloc>().add(LogoutRequested());
     }
-  }
-
-  // Handle navigation between tabs
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: isLoggedIn
-          ? AppBar(
-              title: Text("Välkommen, $loggedInName!"),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is AuthLoggedOut) {
+          return LoginView(
+            onLoginSuccess: () =>
+                context.read<AuthBloc>().add(CheckAuthStatus()),
+          );
+        }
+
+        if (state is AuthAuthenticated) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text("Välkommen, ${state.name}!"),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.logout),
-                  onPressed: _logout,
+                  onPressed: _showLogoutDialog,
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings),
@@ -117,13 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ],
-            )
-          : null, // No AppBar for login view
-      body: isLoggedIn
-          ? _views[_selectedIndex] // Show main views
-          : LoginView(onLoginSuccess: _onLoginSuccess), // Show login view
-      bottomNavigationBar: isLoggedIn
-          ? BottomNavigationBar(
+            ),
+            body: _views[_selectedIndex],
+            bottomNavigationBar: BottomNavigationBar(
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.directions_car),
@@ -146,8 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
               selectedItemColor: Colors.blue,
               unselectedItemColor: const Color.fromARGB(255, 64, 63, 63),
               onTap: _onItemTapped,
-            )
-          : null, // No navigation bar for login view
+            ),
+          );
+        }
+
+        return const Center(
+          child: Text('Something went wrong.'),
+        );
+      },
     );
   }
 }

@@ -18,23 +18,16 @@ class VehicleRepository {
     final uri = Uri.parse('$host:$port/$resource');
 
     // Create a copy of vehicle without the ID for creation
-    final vehicleData = vehicle.toJson();
-    vehicleData.remove('id'); // Remove the 'id' field if it exists
+    //final vehicleData = vehicle.toJson();
+    //vehicleData.remove('id'); // Remove the 'id' field if it exists
 
-    Response response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(vehicleData),
-    );
+    Response response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(vehicle.toJson()));
 
-    _checkResponse(response);
+    final json = jsonDecode(response.body);
 
-    try {
-      final json = jsonDecode(response.body);
-      return Vehicle.fromJson(json);
-    } catch (e) {
-      throw Exception('Failed to parse response: ${response.body}, error: $e');
-    }
+    return Vehicle.fromJson(json);
   }
 
   Future<Vehicle> getVehicleById(int id) async {

@@ -14,6 +14,21 @@ class PersonRepository {
   String port = '8080';
   String resource = 'persons';
 
+  Future<Person> createPerson(Person person) async {
+    // final uri = Uri.parse("http://localhost:8080/persons");
+    final uri = Uri.parse('$host:$port/$resource');
+    // final personData = person.toJson();
+    //personData.remove('id'); // Remove the 'id' field if it exists
+
+    Response response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(person.toJson()));
+
+    final json = jsonDecode(response.body);
+
+    return Person.fromJson(json);
+  }
+
   Future<Person> getPersonById(int id) async {
     //final uri = Uri.parse("http://localhost:8080/persons/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
@@ -22,19 +37,6 @@ class PersonRepository {
       uri,
       headers: {'Content-Type': 'application/json'},
     );
-
-    final json = jsonDecode(response.body);
-
-    return Person.fromJson(json);
-  }
-
-  Future<Person> createPerson(Person person) async {
-    // final uri = Uri.parse("http://localhost:8080/persons");
-    final uri = Uri.parse('$host:$port/$resource');
-
-    Response response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(person.toJson()));
 
     final json = jsonDecode(response.body);
 

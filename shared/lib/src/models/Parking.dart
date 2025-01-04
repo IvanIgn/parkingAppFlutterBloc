@@ -42,7 +42,7 @@ class Parking {
   // Factory constructor to create a Parking instance from JSON
   factory Parking.fromJson(Map<String, dynamic> json) {
     return Parking(
-      id: json['id'] ?? -1,
+      id: json['id'] ?? 0,
       vehicle:
           json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
       parkingSpace: json['parkingSpace'] != null

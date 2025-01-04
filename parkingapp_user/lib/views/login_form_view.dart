@@ -1,98 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:cli/utils/validator.dart';
-import 'package:client_repositories/async_http_repos.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:parkingapp_user/blocs/auth/auth_bloc.dart';
 
 class LoginFormView extends StatefulWidget {
-  const LoginFormView({super.key, required this.onLoginSuccess});
-
   final VoidCallback onLoginSuccess;
 
+  const LoginFormView({super.key, required this.onLoginSuccess});
+
   @override
-  _LoginFormViewState createState() => _LoginFormViewState();
+  LoginFormViewState createState() => LoginFormViewState();
 }
 
-class _LoginFormViewState extends State<LoginFormView> {
+class LoginFormViewState extends State<LoginFormView> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController personNumController = TextEditingController();
 
   String? personNameError;
   String? personNumError;
 
-  final PersonRepository _personRepository = PersonRepository.instance;
-
-  /// Displays a loading spinner for 2 seconds before calling the login logic.
   Future<void> _showLoadingAndLogin() async {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       },
     );
 
-    await Future.delayed(const Duration(seconds: 2)); // Simulate a delay
+    await Future.delayed(const Duration(seconds: 2)); // Simulate delay
 
-    Navigator.of(context).pop(); // Close the spinner
-    _login(); // Proceed with login logic
+    if (mounted) {
+      Navigator.of(context).pop();
+      _login();
+    }
   }
 
-  /// Perform login and update the shared preferences.
-  void _login() async {
+  void _login() {
     final personName = nameController.text.trim();
     final personNum = personNumController.text.trim();
 
     setState(() {
-      personNameError = personName.isEmpty || !Validator.isString(personName)
-          ? "Ogiltigt namn"
-          : null;
+      personNameError = personName.isEmpty ? "Ogiltigt namn" : null;
       personNumError = personNum.isEmpty ? "Personnummer krävs" : null;
     });
 
     if (personNameError == null && personNumError == null) {
-      try {
-        // Fetch user data from the repository
-        final personList = await _personRepository.getAllPersons();
-        final personMap = {
-          for (var person in personList) person.personNumber: person
-        };
-
-        if (!personMap.containsKey(personNum) ||
-            personMap[personNum]?.name != personName) {
-          setState(() {
-            personNumError =
-                'Personen "$personName" med personnummer "$personNum" finns inte.';
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    'Personen "$personName"  med personnummer "$personNum" finns inte.')),
-          );
-          return;
-        }
-
-        // Save login state and invoke success callback
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('loggedInName', personName);
-        await prefs.setString('loggedInPersonNum', personNum);
-        Navigator.of(context).pop();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Inloggad framgångsrikt")),
-        );
-
-        widget.onLoginSuccess(); // Notify parent widget of login success
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Ett fel uppstod: $e")),
-        );
-      }
+      // Trigger the login request via AuthBloc
+      BlocProvider.of<AuthBloc>(context).add(LoginRequested(
+        personName: personName,
+        personNum: personNum,
+      ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Kontrollera uppgifterna och försök igen")),
+          content: Text("Kontrollera uppgifterna och försök igen"),
+        ),
       );
     }
   }
@@ -101,50 +63,69 @@ class _LoginFormViewState extends State<LoginFormView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Logga In")),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          labelText: "Namn",
-                          errorText: personNameError,
-                          border: const OutlineInputBorder(),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthLoading) {
+            // Optionally, you can add a loading spinner here
+          } else if (state is AuthLoggedIn) {
+            // Pop the current login screen and navigate back to the previous screen
+            Navigator.of(context).pop(); // Pop the login screen and go back
+            widget
+                .onLoginSuccess(); // Trigger any action after successful login (optional)
+          } else if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage)),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            labelText: "Namn",
+                            errorText: personNameError,
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: personNumController,
-                        decoration: InputDecoration(
-                          labelText: "Personnummer",
-                          errorText: personNumError,
-                          border: const OutlineInputBorder(),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: personNumController,
+                          decoration: InputDecoration(
+                            labelText: "Personnummer",
+                            errorText: personNumError,
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: _showLoadingAndLogin,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 16),
-                          textStyle: const TextStyle(fontSize: 16),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _showLoadingAndLogin,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 16,
+                            ),
+                            textStyle: const TextStyle(fontSize: 16),
+                          ),
+                          child: const Text("Logga In"),
                         ),
-                        child: const Text("Logga In"),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

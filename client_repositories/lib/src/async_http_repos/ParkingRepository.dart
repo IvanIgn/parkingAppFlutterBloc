@@ -18,6 +18,10 @@ class ParkingRepository {
     // final uri = Uri.parse("http://localhost:8080/parkings");
     final uri = Uri.parse('$host:$port/$resource');
 
+    // Create a copy of parkingspace without the ID for creation
+    //final parkingData = parking.toJson();
+    //parkingData.remove('id'); // Remove the 'id' field if it exists
+
     Response response = await http.post(uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(parking.toJson()));
