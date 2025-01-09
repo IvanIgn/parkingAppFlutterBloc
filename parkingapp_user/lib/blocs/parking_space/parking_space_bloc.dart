@@ -95,6 +95,200 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
     }
   }
 
+  // Future<void> _onStartParking(
+  //   StartParking event,
+  //   Emitter<ParkingSpaceState> emit,
+  // ) async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+
+  //     // Retrieve logged-in person details
+  //     final loggedInPersonName = prefs.getString('loggedInName');
+  //     final loggedInPersonNum = prefs.getString('loggedInPersonNum');
+
+  //     if (loggedInPersonName == null || loggedInPersonNum == null) {
+  //       throw Exception("Missing logged-in person data in SharedPreferences.");
+  //     }
+
+  //     // Get the next available person ID
+  //     final persons = await personRepository.getAllPersons();
+  //     final nextPersonId = persons.isNotEmpty ? persons.last.id + 1 : 1;
+
+  //     // Create logged-in person object with fallback for invalid IDs
+  //     var loggedInPerson = Person(
+  //       id: nextPersonId,
+  //       name: loggedInPersonName,
+  //       personNumber: loggedInPersonNum,
+  //     );
+
+  //     await prefs.setString(
+  //       'loggedInPerson',
+  //       json.encode(loggedInPerson.toJson()),
+  //     );
+
+  //     // Debugging SharedPreferences values
+  //     debugPrint('Checking SharedPreferences:');
+  //     debugPrint('loggedInPerson: ${prefs.getString('loggedInPerson')}');
+  //     debugPrint(
+  //         'selectedParkingSpace: ${prefs.getString('selectedParkingSpace')}');
+  //     debugPrint('selectedVehicle: ${prefs.getString('selectedVehicle')}');
+
+  //     // Validate and parse JSON data
+  //     final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+  //     final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+  //     if (selectedParkingSpaceJson == null || selectedVehicleJson == null) {
+  //       throw Exception(
+  //           "Missing parking or vehicle data in SharedPreferences.");
+  //     }
+
+  //     final selectedParkingSpace =
+  //         ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson));
+  //     var selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
+
+  //     // Update vehicle owner information
+  //     selectedVehicle = Vehicle(
+  //       regNumber: selectedVehicle.regNumber,
+  //       vehicleType: selectedVehicle.vehicleType,
+  //       owner: Person(
+  //         id: loggedInPerson.id, // Use loggedInPerson's actual ID
+  //         name: loggedInPerson.name,
+  //         personNumber: loggedInPerson.personNumber,
+  //       ),
+  //     );
+
+  //     // Get the next available parking ID
+  //     final parkings = await parkingRepository.getAllParkings();
+  //     final nextParkingId = parkings.isNotEmpty ? parkings.last.id + 1 : 1;
+
+  //     // Create a new parking instance
+  //     final parkingInstance = Parking(
+  //       id: nextParkingId,
+  //       vehicle: selectedVehicle,
+  //       parkingSpace: selectedParkingSpace,
+  //       startTime: DateTime.now(),
+  //       endTime: DateTime.now().add(const Duration(hours: 2)),
+  //     );
+
+  //     // Debugging created objects
+  //     debugPrint('Creating parking instance:');
+  //     debugPrint('Vehicle: ${json.encode(selectedVehicle.toJson())}');
+  //     debugPrint(
+  //         'Parking Space: ${json.encode(selectedParkingSpace.toJson())}');
+  //     debugPrint('Parking Instance: ${json.encode(parkingInstance.toJson())}');
+
+  //     // Save the parking instance to SharedPreferences
+  //     await prefs.setString('parking', json.encode(parkingInstance.toJson()));
+  //     await prefs.setString(
+  //         'activeParkingSpace', json.encode(selectedParkingSpace.toJson()));
+  //     await prefs.setBool('isParkingActive', true);
+
+  //     // Add the parking instance to the repository
+  //     await parkingRepository.createParking(parkingInstance);
+
+  //     // Update Bloc state
+  //     if (state is ParkingSpaceLoaded) {
+  //       final currentState = state as ParkingSpaceLoaded;
+  //       emit(ParkingSpaceLoaded(
+  //         parkingSpaces: currentState.parkingSpaces,
+  //         selectedParkingSpace: selectedParkingSpace,
+  //         isParkingActive: true,
+  //       ));
+  //     }
+  //   } catch (e, stackTrace) {
+  //     debugPrint('Error in _onStartParking: $e');
+  //     debugPrint(stackTrace.toString());
+  //     emit(ParkingSpaceError('Error starting parking: ${e.toString()}'));
+  //   }
+  // }
+
+  // Future<void> _onStartParking(
+  //   StartParking event,
+  //   Emitter<ParkingSpaceState> emit,
+  // ) async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+
+  //     final loggedInPersonJson = prefs.getString('loggedInPerson');
+
+  //     if (loggedInPersonJson == null) {
+  //       throw Exception("Missing logged-in person data in SharedPreferences.");
+  //     }
+
+  //     // Create logged-in person object
+  //     var loggedInPersonMap =
+  //         json.decode(loggedInPersonJson) as Map<String, dynamic>;
+  //     var loggedInPerson = Person(
+  //       id: int.parse(loggedInPersonMap['id']),
+  //       name: loggedInPersonMap['name'],
+  //       personNumber: loggedInPersonMap['personNumber'],
+  //     );
+
+  //     // Validate and parse JSON data
+  //     final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+  //     final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+  //     if (selectedParkingSpaceJson == null || selectedVehicleJson == null) {
+  //       throw Exception(
+  //           "Missing parking or vehicle data in SharedPreferences.");
+  //     }
+
+  //     final selectedParkingSpace =
+  //         ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson));
+  //     var selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
+
+  //     // Update vehicle owner information
+  //     selectedVehicle = Vehicle(
+  //       regNumber: selectedVehicle.regNumber,
+  //       vehicleType: selectedVehicle.vehicleType,
+  //       owner: loggedInPerson,
+  //     );
+
+  //     // Get the next available parking ID
+  //     final parkings = await parkingRepository.getAllParkings();
+  //     final nextParkingId = parkings.isNotEmpty ? parkings.last.id + 1 : 1;
+
+  //     // Create a new parking instance
+  //     final parkingInstance = Parking(
+  //       //id: nextParkingId,
+  //       vehicle: selectedVehicle,
+  //       parkingSpace: selectedParkingSpace,
+  //       startTime: DateTime.now(),
+  //       endTime: DateTime.now().add(const Duration(hours: 2)),
+  //     );
+
+  //     // Debugging created objects
+  //     debugPrint('Creating parking instance:');
+  //     debugPrint('Vehicle: ${json.encode(selectedVehicle.toJson())}');
+  //     debugPrint(
+  //         'Parking Space: ${json.encode(selectedParkingSpace.toJson())}');
+  //     debugPrint('Parking Instance: ${json.encode(parkingInstance.toJson())}');
+
+  //     // Save the parking instance to SharedPreferences
+  //     await prefs.setString('parking', json.encode(parkingInstance.toJson()));
+  //     await prefs.setString(
+  //         'activeParkingSpace', json.encode(selectedParkingSpace.toJson()));
+  //     await prefs.setBool('isParkingActive', true);
+
+  //     // Add the parking instance to the repository
+  //     await parkingRepository.createParking(parkingInstance);
+
+  //     // Update Bloc state
+  //     if (state is ParkingSpaceLoaded) {
+  //       final currentState = state as ParkingSpaceLoaded;
+  //       emit(ParkingSpaceLoaded(
+  //         parkingSpaces: currentState.parkingSpaces,
+  //         selectedParkingSpace: selectedParkingSpace,
+  //         isParkingActive: true,
+  //       ));
+  //     }
+  //   } catch (e, stackTrace) {
+  //     debugPrint('Error in _onStartParking: $e');
+  //     debugPrint(stackTrace.toString());
+  //     emit(ParkingSpaceError('Error starting parking: ${e.toString()}'));
+  //   }
+  // }
+
   Future<void> _onStartParking(
     StartParking event,
     Emitter<ParkingSpaceState> emit,
@@ -102,107 +296,71 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      debugPrint('Checking SharedPreferences:');
-      debugPrint('loggedInPerson: ${prefs.getString('loggedInPerson')}');
-      debugPrint(
-          'selectedParkingSpace: ${prefs.getString('selectedParkingSpace')}');
-      // debugPrint('selectedVehicle: ${prefs.getString('selectedVehicle')}');
-
-      final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
-      final selectedVehicleJson = prefs.getString('selectedVehicle');
       final loggedInPersonJson = prefs.getString('loggedInPerson');
 
-      if (selectedParkingSpaceJson == null ||
-          selectedVehicleJson == null ||
-          loggedInPersonJson == null) {
-        throw Exception("Missing required data in SharedPreferences.");
+      if (loggedInPersonJson == null) {
+        throw Exception("Missing logged-in person data in SharedPreferences.");
       }
 
-      // Parse JSON data
+      // Create logged-in person object
+      final loggedInPersonMap =
+          json.decode(loggedInPersonJson) as Map<String, dynamic>;
+      final loggedInPerson = Person(
+        id: loggedInPersonMap['id'], // `id` is already an `int`
+        name: loggedInPersonMap['name'],
+        personNumber: loggedInPersonMap['personNumber'],
+      );
+
+      // Validate and parse JSON data
+      final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+      final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+      if (selectedParkingSpaceJson == null || selectedVehicleJson == null) {
+        throw Exception(
+            "Missing parking or vehicle data in SharedPreferences.");
+      }
+
       final selectedParkingSpace =
           ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson));
       var selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
-      final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
 
-      final nextPersonId = (await personRepository.getAllPersons()).length + 1;
+      // Update vehicle owner information
       selectedVehicle = Vehicle(
         regNumber: selectedVehicle.regNumber,
         vehicleType: selectedVehicle.vehicleType,
-        owner: Person(
-          id: nextPersonId,
-          name: loggedInPerson.name,
-          personNumber: loggedInPerson.personNumber,
-        ),
+        owner: loggedInPerson,
       );
 
-      final loggedInPersonName = prefs.getString('loggedInName');
-      final loggedInPersonNum = prefs.getString('loggedInPersonNum');
+      // Get the next available parking ID
+      final parkings = await parkingRepository.getAllParkings();
+      final nextParkingId = parkings.isNotEmpty ? parkings.last.id + 1 : 1;
 
-      if (loggedInPersonName != null && loggedInPersonNum != null) {
-        // Create a Person object
-        var loggedInPerson = Person(
-          id: nextPersonId, // Assuming id is 0 or you can set it to any default value
-          name: loggedInPersonName,
-          personNumber: loggedInPersonNum,
-        );
-
-        // Convert the Person object to JSON
-        final loggedInPersonJson = json.encode(loggedInPerson.toJson());
-
-        // Save the JSON string to SharedPreferences
-        await prefs.setString('loggedInPerson', loggedInPersonJson);
-
-        // Load the JSON string from SharedPreferences
-
-        //  loggedInPerson = Person.fromJson(personData);
-      }
-
-      debugPrint('Parsed Objects:');
-      debugPrint('Parking Space: $selectedParkingSpace');
-      debugPrint('Vehicle: $selectedVehicle');
-      debugPrint('Person: $loggedInPerson');
-
-      // Create and validate Parking instance
-      final nextParkingId =
-          (await parkingRepository.getAllParkings()).length + 1;
-      final loadedLoggedInPersonJson = prefs.getString('loggedInPerson');
-      loadedLoggedInPersonJson != null
-          ? Person.fromJson(json.decode(loadedLoggedInPersonJson)).name
-          : '';
+      // Create a new parking instance
       final parkingInstance = Parking(
-        id: nextParkingId, // Use the next parking ID
-        vehicle: Vehicle(
-          id: selectedVehicle.id, // Default to -1 if id is missing
-          regNumber: selectedVehicle.regNumber, // Default to empty string
-          vehicleType: selectedVehicle.vehicleType, // Default to empty string
-          owner: Person(
-            id: nextPersonId, //loggedInPerson.id, // Default to -1 if id is missing
-            name: loadedLoggedInPersonJson != null
-                ? Person.fromJson(json.decode(loadedLoggedInPersonJson)).name
-                : '',
-            // Default to empty string if name is missing
-            personNumber: loadedLoggedInPersonJson != null
-                ? Person.fromJson(json.decode(loadedLoggedInPersonJson))
-                    .personNumber
-                : '', // Default if missing
-          ),
-        ),
+        id: nextParkingId,
+        vehicle: selectedVehicle,
         parkingSpace: selectedParkingSpace,
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 2)),
       );
 
+      // Debugging created objects
+      debugPrint('Creating parking instance:');
+      debugPrint('Vehicle: ${json.encode(selectedVehicle.toJson())}');
+      debugPrint(
+          'Parking Space: ${json.encode(selectedParkingSpace.toJson())}');
+      debugPrint('Parking Instance: ${json.encode(parkingInstance.toJson())}');
+
       // Save the parking instance to SharedPreferences
       await prefs.setString('parking', json.encode(parkingInstance.toJson()));
-
-      // Add the parking instance to the ParkingRepository
-      await ParkingRepository.instance.createParking(parkingInstance);
-
-      // Save the selected parking space to preferences when parking starts
-      final parkingSpaceJson = json.encode(selectedParkingSpace!.toJson());
-      await prefs.setString('activeParkingSpace', parkingSpaceJson);
+      await prefs.setString(
+          'activeParkingSpace', json.encode(selectedParkingSpace.toJson()));
       await prefs.setBool('isParkingActive', true);
 
+      // Add the parking instance to the repository
+      await parkingRepository.createParking(parkingInstance);
+
+      // Update Bloc state
       if (state is ParkingSpaceLoaded) {
         final currentState = state as ParkingSpaceLoaded;
         emit(ParkingSpaceLoaded(
@@ -214,6 +372,7 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
     } catch (e, stackTrace) {
       debugPrint('Error in _onStartParking: $e');
       debugPrint(stackTrace.toString());
+      emit(ParkingSpaceError('Error starting parking: ${e.toString()}'));
     }
   }
 
@@ -228,7 +387,9 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
 
     final parkingInstance = Parking.fromJson(json.decode(parkingJson));
     await parkingRepository.deleteParking(parkingInstance.id);
+
     await prefs.remove('isParkingActive');
+    await prefs.remove('parking');
 
     if (state is ParkingSpaceLoaded) {
       final currentState = state as ParkingSpaceLoaded;

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'package:client_repositories/async_http_repos.dart'; // Assume this contains PersonRepository and Person model
 
 part 'auth_event.dart';
@@ -12,30 +13,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.personRepository}) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
-    on<CheckAuthStatus>(_onCheckAuthStatus); // Add CheckAuthStatus handler
+    on<CheckAuthStatus>(_onCheckAuthStatus);
   }
 
-  // Check Authentication Status
   Future<void> _onCheckAuthStatus(
       CheckAuthStatus event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       final prefs = await SharedPreferences.getInstance();
-      final loggedInName = prefs.getString('loggedInName');
-      final loggedInPersonNum = prefs.getString('loggedInPersonNum');
-
-      if (loggedInName != null && loggedInPersonNum != null) {
+      final loggedInPerson = prefs.getString('loggedInPerson');
+      if (loggedInPerson != null) {
+        final personData = json.decode(loggedInPerson);
         emit(AuthAuthenticated(
-            name: loggedInName, personNumber: loggedInPersonNum));
+          name: personData['name'],
+          personNumber: personData['personNumber'],
+        ));
       } else {
         emit(AuthLoggedOut());
       }
     } catch (e) {
       emit(AuthError(errorMessage: 'Error checking authentication status: $e'));
+      emit(AuthLoggedOut()); // Reset to a retryable state
     }
   }
 
-  // Handle Login Request
   Future<void> _onLoginRequested(
       LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
@@ -48,32 +49,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(
             errorMessage:
                 'Personen "${event.personName}" med personnummer "${event.personNum}" är inte registrerad.'));
+        emit(AuthLoggedOut()); // Allow retry without delay
         return;
-      } else {
-        // Save the logged-in user's data to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('loggedInName', event.personName);
-        await prefs.setString('loggedInPersonNum', event.personNum);
-
-        // Emit AuthLoggedIn instead of AuthAuthenticated for clarity
-        emit(AuthLoggedIn(
-            name: event.personName, personNumber: event.personNum));
       }
+
+      final loggedInPerson = personMap[event.personNum]!;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'loggedInPerson', json.encode(loggedInPerson.toJson()));
+
+      emit(AuthAuthenticated(
+        name: loggedInPerson.name,
+        personNumber: loggedInPerson.personNumber,
+      ));
     } catch (e) {
       emit(AuthError(errorMessage: 'An error occurred: $e'));
+      emit(AuthLoggedOut()); // Allow retry without delay
     }
   }
 
-  // Handle Logout Request
   Future<void> _onLogoutRequested(
       LogoutRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('loggedInName');
-      await prefs.remove('loggedInPersonNum');
-      //await prefs.clear();
-
+      await prefs.clear();
       emit(AuthLoggedOut());
     } catch (e) {
       emit(AuthError(errorMessage: 'An error occurred during logout: $e'));

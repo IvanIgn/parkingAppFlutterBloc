@@ -1,5 +1,3 @@
-// FIRST VERSION
-
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkingapp_user/blocs/parking_space/parking_space_bloc.dart'; // Import your Bloc files
 
 class ParkingSpaceSelectionScreen extends StatelessWidget {
-  const ParkingSpaceSelectionScreen({Key? key}) : super(key: key);
+  const ParkingSpaceSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +62,7 @@ class _ParkingSpaceListView extends StatelessWidget {
     required this.parkingSpaces,
     required this.selectedSpace,
     required this.isParkingActive,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -130,15 +127,16 @@ class _SelectedSpaceInfo extends StatelessWidget {
   const _SelectedSpaceInfo({
     required this.selectedSpace,
     required this.isParkingActive,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       color: isParkingActive
+          // ignore: deprecated_member_use
           ? Colors.red.withOpacity(0.2)
+          // ignore: deprecated_member_use
           : Colors.green.withOpacity(0.2),
       child: Text(
         isParkingActive
@@ -165,8 +163,7 @@ class _SelectButton extends StatelessWidget {
     required this.isSelected,
     required this.isParkingActive,
     required this.parkingSpace,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -216,8 +213,7 @@ class _SelectButton extends StatelessWidget {
 class _ToggleParkingButton extends StatelessWidget {
   final bool isParkingActive;
 
-  const _ToggleParkingButton({required this.isParkingActive, Key? key})
-      : super(key: key);
+  const _ToggleParkingButton({required this.isParkingActive});
 
   @override
   Widget build(BuildContext context) {

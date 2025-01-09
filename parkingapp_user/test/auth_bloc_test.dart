@@ -44,7 +44,7 @@ void main() {
       ),
       expect: () => [
         AuthLoading(),
-        AuthAuthenticated(name: 'Test User', personNumber: '12345'),
+        const AuthAuthenticated(name: 'Test User', personNumber: '12345'),
       ],
     );
 
@@ -97,7 +97,7 @@ void main() {
       act: (bloc) => bloc.add(CheckAuthStatus()),
       expect: () => [
         AuthLoading(),
-        AuthAuthenticated(name: 'Test User', personNumber: '12345'),
+        const AuthAuthenticated(name: 'Test User', personNumber: '12345'),
       ],
     );
 

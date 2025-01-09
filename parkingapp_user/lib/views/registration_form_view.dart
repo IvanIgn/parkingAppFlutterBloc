@@ -11,8 +11,9 @@ class RegistrationView extends StatelessWidget {
     final personNumController = TextEditingController();
     final confirmPersonNumController = TextEditingController();
 
-    String? nameError;
-    String? personNumError;
+    // Using ValueNotifier to manage error messages
+    final nameErrorNotifier = ValueNotifier<String?>(null);
+    final personNumErrorNotifier = ValueNotifier<String?>(null);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Registrera Dig")),
@@ -52,44 +53,85 @@ class RegistrationView extends StatelessWidget {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          TextField(
-                            controller: nameController,
-                            decoration: InputDecoration(
-                              labelText: "Namn",
-                              errorText: nameError,
-                              border: const OutlineInputBorder(),
-                            ),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: nameErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: nameController,
+                                decoration: InputDecoration(
+                                  labelText: "Namn",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 16),
-                          TextField(
-                            controller: personNumController,
-                            decoration: InputDecoration(
-                              labelText: "Personnummer",
-                              errorText: personNumError,
-                              border: const OutlineInputBorder(),
-                            ),
-                            obscureText: true,
+                          ValueListenableBuilder<String?>(
+                            valueListenable: personNumErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: personNumController,
+                                decoration: InputDecoration(
+                                  labelText: "Personnummer",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 16),
-                          TextField(
-                            controller: confirmPersonNumController,
-                            decoration: InputDecoration(
-                              labelText: "Bekräfta personnummer",
-                              errorText: personNumError,
-                              border: const OutlineInputBorder(),
-                            ),
-                            obscureText: true,
+                          ValueListenableBuilder<String?>(
+                            valueListenable: personNumErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: confirmPersonNumController,
+                                decoration: InputDecoration(
+                                  labelText: "Bekräfta personnummer",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: () {
-                              // Dispatch registration event
+                              // Validate input fields
+                              final name = nameController.text.trim();
+                              final personNum = personNumController.text.trim();
+                              final confirmPersonNum =
+                                  confirmPersonNumController.text.trim();
+
+                              // Reset error messages
+                              nameErrorNotifier.value = null;
+                              personNumErrorNotifier.value = null;
+
+                              // Validate fields
+                              if (name.isEmpty) {
+                                nameErrorNotifier.value =
+                                    "Namn är obligatoriskt.";
+                                return;
+                              }
+
+                              if (personNum.isEmpty) {
+                                personNumErrorNotifier.value =
+                                    "Personnummer är obligatoriskt.";
+                                return;
+                              }
+
+                              if (personNum != confirmPersonNum) {
+                                personNumErrorNotifier.value =
+                                    "Personnummer matchar inte.";
+                                return;
+                              }
+
+                              // Dispatch registration event if validation passes
                               context.read<RegistrationBloc>().add(
                                     RegistrationSubmitted(
-                                      name: nameController.text,
-                                      personNum: personNumController.text,
-                                      confirmPersonNum:
-                                          confirmPersonNumController.text,
+                                      name: name,
+                                      personNum: personNum,
+                                      confirmPersonNum: confirmPersonNum,
                                     ),
                                   );
                             },

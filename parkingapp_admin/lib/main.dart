@@ -65,9 +65,56 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'views/home_view.dart';
+
+// // Global ValueNotifier for dark mode
+// final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(false);
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+
+//   // Load saved theme preference
+//   final prefs = await SharedPreferences.getInstance();
+//   isDarkModeNotifier.value = prefs.getBool('isDarkMode') ?? false;
+
+//   runApp(const ParkingAdminApp());
+// }
+
+// class ParkingAdminApp extends StatelessWidget {
+//   const ParkingAdminApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ValueListenableBuilder<bool>(
+//       valueListenable: isDarkModeNotifier,
+//       builder: (context, isDarkMode, _) {
+//         return MaterialApp(
+//           debugShowCheckedModeBanner: false,
+//           title: 'Parking Admin App',
+//           theme: ThemeData.light(),
+//           darkTheme: ThemeData.dark(),
+//           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+//           home: const HomeScreen(),
+//         );
+//       },
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'views/home_view.dart';
+import 'package:parkingapp_admin/blocs/person/person_bloc.dart';
+import 'package:parkingapp_admin/blocs/vehicle/vehicle_bloc.dart';
+import 'package:parkingapp_admin/blocs/parking/parking_bloc.dart';
+import 'package:parkingapp_admin/blocs/parking_space/parking_space_bloc.dart';
+import 'package:client_repositories/async_http_repos.dart'; // Add this line
+
+// Define the vehicleRepository
+final vehicleRepository = VehicleRepository.instance;
 
 // Global ValueNotifier for dark mode
 final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(false);
@@ -90,13 +137,30 @@ class ParkingAdminApp extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: isDarkModeNotifier,
       builder: (context, isDarkMode, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Parking Admin App',
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: const HomeScreen(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<PersonBloc>(
+              create: (_) => PersonBloc()..add(FetchPersonsEvent()),
+            ),
+            BlocProvider<VehicleBloc>(
+              create: (_) =>
+                  VehicleBloc(vehicleRepository)..add(FetchVehiclesEvent()),
+            ),
+            BlocProvider<ParkingsBloc>(
+              create: (_) => ParkingsBloc()..add(FetchParkingsEvent()),
+            ),
+            BlocProvider<ParkingSpaceBloc>(
+              create: (_) => ParkingSpaceBloc()..add(LoadParkingSpaces()),
+            ),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Parking Admin App',
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const HomeScreen(),
+          ),
         );
       },
     );

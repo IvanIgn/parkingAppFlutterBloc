@@ -8,6 +8,7 @@ abstract class AuthEvent extends Equatable {
 }
 
 class LoginRequested extends AuthEvent {
+  // final String id;
   final String personName;
   final String personNum;
 

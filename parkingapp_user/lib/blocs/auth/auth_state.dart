@@ -13,6 +13,7 @@ class AuthLoading extends AuthState {}
 
 class AuthLoggedIn extends AuthState {
   // Login success state
+  //final String id;
   final String name;
   final String personNumber;
 
@@ -23,6 +24,7 @@ class AuthLoggedIn extends AuthState {
 }
 
 class AuthAuthenticated extends AuthState {
+  //final String id;
   final String name;
   final String personNumber;
 

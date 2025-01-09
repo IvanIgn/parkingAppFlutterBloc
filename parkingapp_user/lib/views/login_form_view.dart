@@ -18,7 +18,9 @@ class LoginFormViewState extends State<LoginFormView> {
   String? personNameError;
   String? personNumError;
 
+  // Show loading indicator while login is in process
   Future<void> _showLoadingAndLogin() async {
+    // Show the loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -27,15 +29,9 @@ class LoginFormViewState extends State<LoginFormView> {
       },
     );
 
-    await Future.delayed(const Duration(seconds: 2)); // Simulate delay
+    // Wait for 2 seconds to simulate a delay before proceeding with login
+    await Future.delayed(const Duration(seconds: 2));
 
-    if (mounted) {
-      Navigator.of(context).pop();
-      _login();
-    }
-  }
-
-  void _login() {
     final personName = nameController.text.trim();
     final personNum = personNumController.text.trim();
 
@@ -65,14 +61,16 @@ class LoginFormViewState extends State<LoginFormView> {
       appBar: AppBar(title: const Text("Logga In")),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthLoading) {
-            // Optionally, you can add a loading spinner here
-          } else if (state is AuthLoggedIn) {
-            // Pop the current login screen and navigate back to the previous screen
-            Navigator.of(context).pop(); // Pop the login screen and go back
-            widget
-                .onLoginSuccess(); // Trigger any action after successful login (optional)
+          if (state is AuthAuthenticated) {
+            // When login is successful, pop the login screen
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop(); // Close the current screen
+            }
+            //  widget.onLoginSuccess(); // Trigger post-login action
           } else if (state is AuthError) {
+            // Close loading dialog if open
+            if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.errorMessage)),
             );

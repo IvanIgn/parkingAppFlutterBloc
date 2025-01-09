@@ -18,20 +18,26 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
 
   String? loggedInName;
   String? loggedInPersonNum;
+  String? loggedInPersonId;
   Vehicle? _selectedVehicle;
 
   @override
   void initState() {
     super.initState();
     _loadLoggedInUser();
-    _loadSelectedVehicle(); // Load saved vehicle on initialization
+    _loadSelectedVehicle();
+    _refreshVehicles(); // Load saved vehicle on initialization
   }
 
   Future<void> _loadLoggedInUser() async {
     final prefs = await SharedPreferences.getInstance();
+
     setState(() {
-      loggedInName = prefs.getString('loggedInName');
-      loggedInPersonNum = prefs.getString('loggedInPersonNum');
+      final loggedInPerson = prefs.getString('loggedInPerson');
+      loggedInName = json.decode(loggedInPerson!)['name'];
+      loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
+      // loggedInName = prefs.getString('loggedInName');
+      // loggedInPersonNum = prefs.getString('loggedInPersonNum');
     });
   }
 

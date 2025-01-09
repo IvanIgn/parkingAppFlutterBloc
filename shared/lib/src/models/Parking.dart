@@ -19,7 +19,7 @@ class Parking {
     this.parkingSpace,
     required this.startTime,
     required this.endTime,
-    this.id = -1, // Default to -1 for unassigned ID
+    this.id = 0, // Default to -1 for unassigned ID
   });
 
   // Convert vehicle to a JSON string for database storage

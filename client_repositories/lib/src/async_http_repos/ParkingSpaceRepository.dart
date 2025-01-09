@@ -20,7 +20,7 @@ class ParkingSpaceRepository {
 
     // Create a copy of parkingspace without the ID for creation
     //final parkingSpaceData = parkingspace.toJson();
-    //parkingSpaceData.remove('id'); // Remove the 'id' field if it exists
+    // parkingSpaceData.remove('id'); // Remove the 'id' field if it exists
 
     // Response response = await http.post(
     //   uri,
