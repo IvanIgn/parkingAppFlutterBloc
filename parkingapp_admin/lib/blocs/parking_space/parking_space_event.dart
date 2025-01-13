@@ -1,33 +1,36 @@
-// parking_spaces_event.dart
-
 part of 'parking_space_bloc.dart';
 
-abstract class ParkingSpacesEvent {
-  List<Object> get props => [];
+abstract class ParkingSpaceEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
 }
 
-class LoadParkingSpaces extends ParkingSpacesEvent {}
+class LoadParkingSpaces extends ParkingSpaceEvent {}
 
-class AddParkingSpace extends ParkingSpacesEvent {
+class AddParkingSpace extends ParkingSpaceEvent {
   final ParkingSpace parkingSpace;
 
-  AddParkingSpace({required this.parkingSpace});
+  AddParkingSpace(this.parkingSpace);
+
   @override
-  List<Object> get props => [parkingSpace];
+  List<Object?> get props => [parkingSpace];
 }
 
-class EditParkingSpace extends ParkingSpacesEvent {
-  final ParkingSpace parkingSpace;
+class UpdateParkingSpace extends ParkingSpaceEvent {
+  final int id;
+  final ParkingSpace updatedParkingSpace;
 
-  EditParkingSpace({required this.parkingSpace});
+  UpdateParkingSpace(this.id, this.updatedParkingSpace);
+
   @override
-  List<Object> get props => [parkingSpace];
+  List<Object?> get props => [id, updatedParkingSpace];
 }
 
-class DeleteParkingSpace extends ParkingSpacesEvent {
+class DeleteParkingSpace extends ParkingSpaceEvent {
   final int id;
 
-  DeleteParkingSpace({required this.id});
+  DeleteParkingSpace(this.id);
+
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [id];
 }

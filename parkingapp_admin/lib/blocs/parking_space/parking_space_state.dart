@@ -1,32 +1,28 @@
-// parking_spaces_state.dart
-
-//import 'package:equatable/equatable.dart';
-
 part of 'parking_space_bloc.dart';
 
-abstract class ParkingSpacesState {
+abstract class ParkingSpaceState extends Equatable {
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class ParkingSpacesInitial extends ParkingSpacesState {}
+class ParkingSpaceInitial extends ParkingSpaceState {}
 
-class ParkingSpacesLoading extends ParkingSpacesState {}
+class ParkingSpaceLoading extends ParkingSpaceState {}
 
-class ParkingSpacesLoaded extends ParkingSpacesState {
+class ParkingSpaceLoaded extends ParkingSpaceState {
   final List<ParkingSpace> parkingSpaces;
 
-  ParkingSpacesLoaded(this.parkingSpaces);
+  ParkingSpaceLoaded(this.parkingSpaces);
 
   @override
-  List<Object> get props => [parkingSpaces];
+  List<Object?> get props => [parkingSpaces];
 }
 
-class ParkingSpacesError extends ParkingSpacesState {
+class ParkingSpaceError extends ParkingSpaceState {
   final String errorMessage;
 
-  ParkingSpacesError(this.errorMessage);
+  ParkingSpaceError(this.errorMessage);
 
   @override
-  List<Object> get props => [errorMessage];
+  List<Object?> get props => [errorMessage];
 }

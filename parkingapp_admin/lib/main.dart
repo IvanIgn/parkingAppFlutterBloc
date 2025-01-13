@@ -116,6 +116,9 @@ import 'package:client_repositories/async_http_repos.dart'; // Add this line
 // Define the vehicleRepository
 final vehicleRepository = VehicleRepository.instance;
 
+// Define the parkingSpaceRepository
+final parkingSpaceRepository = ParkingSpaceRepository.instance;
+
 // Global ValueNotifier for dark mode
 final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(false);
 
@@ -140,7 +143,7 @@ class ParkingAdminApp extends StatelessWidget {
         return MultiBlocProvider(
           providers: [
             BlocProvider<PersonBloc>(
-              create: (_) => PersonBloc()..add(FetchPersonsEvent()),
+              create: (_) => PersonBloc()..add(const FetchPersonsEvent()),
             ),
             BlocProvider<VehicleBloc>(
               create: (_) =>
@@ -150,7 +153,8 @@ class ParkingAdminApp extends StatelessWidget {
               create: (_) => ParkingsBloc()..add(FetchParkingsEvent()),
             ),
             BlocProvider<ParkingSpaceBloc>(
-              create: (_) => ParkingSpaceBloc()..add(LoadParkingSpaces()),
+              create: (_) => ParkingSpaceBloc(parkingSpaceRepository)
+                ..add(LoadParkingSpaces()),
             ),
           ],
           child: MaterialApp(

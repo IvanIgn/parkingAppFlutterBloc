@@ -290,56 +290,156 @@
 //     );
 //   }
 // }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/parking_space/parking_space_bloc.dart';
+import 'package:client_repositories/async_http_repos.dart';
+import 'package:parkingapp_admin/blocs/parking_space/parking_space_bloc.dart';
+import 'package:shared/shared.dart';
 
 class ManageParkingSpacesView extends StatelessWidget {
   const ManageParkingSpacesView({super.key});
 
+  void _showAddParkingSpaceDialog(BuildContext context) {
+    final TextEditingController addressController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Lägg till parkeringsplats"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Adress'),
+                ),
+                TextField(
+                  controller: priceController,
+                  keyboardType: TextInputType.number,
+                  decoration:
+                      const InputDecoration(labelText: 'Pris per timme (SEK)'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Avbryt"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final address = addressController.text;
+                final price = double.tryParse(priceController.text);
+
+                if (address.isEmpty || price == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Alla fält måste fyllas i korrekt."),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  return;
+                }
+
+                final newParkingSpace = ParkingSpace(
+                  address: address,
+                  pricePerHour: price.toInt(),
+                );
+
+                context
+                    .read<ParkingSpaceBloc>()
+                    .add(AddParkingSpace(newParkingSpace));
+                Navigator.of(context).pop();
+              },
+              child: const Text("Spara"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, ParkingSpace space) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Bekräfta borttagning"),
+          content: Text(
+            "Är du säker på att du vill ta bort parkeringsplatsen med ID ${space.id}?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Avbryt"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context
+                    .read<ParkingSpaceBloc>()
+                    .add(DeleteParkingSpace(space.id));
+                Navigator.of(context).pop();
+              },
+              child: const Text("Ta bort"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ParkingSpaceBloc()
-        ..add(LoadParkingSpaces()), // Dispatch initial load event
+      create: (_) => ParkingSpaceBloc(ParkingSpaceRepository.instance)
+        ..add(LoadParkingSpaces()),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Parkeringsplatser"),
-        ),
-        body: BlocBuilder<ParkingSpaceBloc, ParkingSpacesState>(
+        appBar: AppBar(title: const Text("Parkeringsplatser")),
+        body: BlocBuilder<ParkingSpaceBloc, ParkingSpaceState>(
           builder: (context, state) {
-            if (state is ParkingSpacesLoading) {
+            if (state is ParkingSpaceLoading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is ParkingSpacesError) {
+            } else if (state is ParkingSpaceError) {
               return Center(
                 child: Text(
-                  state.errorMessage,
+                  'Fel vid hämtning av data: ${state.errorMessage}',
                   style: const TextStyle(color: Colors.red, fontSize: 16),
                 ),
               );
-            } else if (state is ParkingSpacesLoaded) {
-              final parkingSpacesList = state.parkingSpaces;
+            } else if (state is ParkingSpaceLoaded) {
+              final parkingSpaces = state.parkingSpaces;
               return ListView.separated(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: parkingSpacesList.length,
+                itemCount: parkingSpaces.length,
                 itemBuilder: (context, index) {
-                  final parkingSpace = parkingSpacesList[index];
+                  final space = parkingSpaces[index];
                   return ListTile(
                     title: Text(
-                      'Parkeringsplats ID: ${parkingSpace.id}',
+                      'Parkeringsplats ID: ${space.id}',
                       style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Adress: ${parkingSpace.address}',
+                          'Adress: ${space.address}',
                           style: const TextStyle(fontSize: 14),
                         ),
                         Text(
-                          'Pris per timme: ${parkingSpace.pricePerHour} SEK',
+                          'Pris: ${space.pricePerHour} SEK/timme',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -350,13 +450,13 @@ class ManageParkingSpacesView extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.blue),
                           onPressed: () {
-                            // Handle Edit Action
+                            // Implement edit action
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            // Handle Delete Action
+                            _showDeleteConfirmationDialog(context, space);
                           },
                         ),
                       ],
@@ -371,12 +471,13 @@ class ManageParkingSpacesView extends StatelessWidget {
                 },
               );
             }
-            return const SizedBox.shrink(); // Default case if no state is found
+            return const Center(
+                child: Text('Inga parkeringsplatser hittades.'));
           },
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // Show add dialog and dispatch AddParkingSpace event
+            _showAddParkingSpaceDialog(context);
           },
           child: const Icon(Icons.add),
         ),
