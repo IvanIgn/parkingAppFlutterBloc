@@ -31,6 +31,8 @@ class ParkingSpaceRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(parkingspace.toJson()));
 
+    _checkResponse(response);
+
     final json = jsonDecode(response.body);
 
     return ParkingSpace.fromJson(json);

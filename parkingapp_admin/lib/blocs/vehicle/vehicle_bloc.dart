@@ -1,4 +1,3 @@
-// vehicle_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:equatable/equatable.dart';
@@ -8,63 +7,76 @@ part 'vehicle_event.dart';
 part 'vehicle_state.dart';
 
 class VehicleBloc extends Bloc<VehicleEvent, VehicleState> {
-  final VehicleRepository _vehicleRepository;
+  final VehicleRepository vehicleRepository;
 
-  VehicleBloc(this._vehicleRepository) : super(VehicleInitialState());
+  VehicleBloc(this.vehicleRepository) : super(VehicleInitial()) {
+    on<LoadVehicles>(_onLoadVehicles);
+    on<AddVehicle>(_onAddVehicle);
+    on<UpdateVehicle>(_onUpdateVehicle);
+    on<DeleteVehicle>(_onDeleteVehicle);
+  }
 
-  @override
-  Stream<VehicleState> mapEventToState(VehicleEvent event) async* {
-    if (event is FetchVehiclesEvent) {
-      yield* _mapFetchVehiclesEventToState();
-    } else if (event is AddVehicleEvent) {
-      yield* _mapAddVehicleEventToState(event);
-    } else if (event is UpdateVehicleEvent) {
-      yield* _mapUpdateVehicleEventToState(event);
-    } else if (event is DeleteVehicleEvent) {
-      yield* _mapDeleteVehicleEventToState(event);
+  Future<void> _onLoadVehicles(
+    LoadVehicles event,
+    Emitter<VehicleState> emit,
+  ) async {
+    emit(VehicleLoading());
+    try {
+      final vehicles = await vehicleRepository.getAllVehicles();
+      emit(VehicleLoaded(vehicles));
+    } catch (error) {
+      emit(VehicleError('Failed to load vehicles: $error'));
     }
   }
 
-  Stream<VehicleState> _mapFetchVehiclesEventToState() async* {
-    yield VehicleLoadingState();
-    try {
-      final vehicles = await _vehicleRepository.getAllVehicles();
-      yield VehicleLoadedState(vehicles);
-    } catch (e) {
-      yield VehicleErrorState('Failed to fetch vehicles: $e');
+  Future<void> _onAddVehicle(
+    AddVehicle event,
+    Emitter<VehicleState> emit,
+  ) async {
+    if (state is VehicleLoaded) {
+      final currentState = state as VehicleLoaded;
+      try {
+        await vehicleRepository.createVehicle(event.vehicle);
+        final updatedVehicles =
+            await vehicleRepository.getAllVehicles(); // Refresh list
+        emit(VehicleLoaded(updatedVehicles));
+      } catch (error) {
+        emit(VehicleError('Failed to add vehicle: $error'));
+      }
     }
   }
 
-  Stream<VehicleState> _mapAddVehicleEventToState(
-      AddVehicleEvent event) async* {
-    try {
-      await _vehicleRepository.createVehicle(event.vehicle);
-      yield VehicleAddedState();
-      add(FetchVehiclesEvent()); // Refresh the vehicle list
-    } catch (e) {
-      yield VehicleErrorState('Failed to add vehicle: $e');
+  Future<void> _onUpdateVehicle(
+    UpdateVehicle event,
+    Emitter<VehicleState> emit,
+  ) async {
+    if (state is VehicleLoaded) {
+      final currentState = state as VehicleLoaded;
+      try {
+        await vehicleRepository.updateVehicle(event.vehicle.id, event.vehicle);
+        final updatedVehicles =
+            await vehicleRepository.getAllVehicles(); // Refresh list
+        emit(VehicleLoaded(updatedVehicles));
+      } catch (error) {
+        emit(VehicleError('Failed to update vehicle: $error'));
+      }
     }
   }
 
-  Stream<VehicleState> _mapUpdateVehicleEventToState(
-      UpdateVehicleEvent event) async* {
-    try {
-      await _vehicleRepository.updateVehicle(event.vehicle.id, event.vehicle);
-      yield VehicleUpdatedState();
-      add(FetchVehiclesEvent()); // Refresh the vehicle list
-    } catch (e) {
-      yield VehicleErrorState('Failed to update vehicle: $e');
-    }
-  }
-
-  Stream<VehicleState> _mapDeleteVehicleEventToState(
-      DeleteVehicleEvent event) async* {
-    try {
-      await _vehicleRepository.deleteVehicle(int.parse(event.vehicleId));
-      yield VehicleDeletedState();
-      add(FetchVehiclesEvent()); // Refresh the vehicle list
-    } catch (e) {
-      yield VehicleErrorState('Failed to delete vehicle: $e');
+  Future<void> _onDeleteVehicle(
+    DeleteVehicle event,
+    Emitter<VehicleState> emit,
+  ) async {
+    if (state is VehicleLoaded) {
+      final currentState = state as VehicleLoaded;
+      try {
+        await vehicleRepository.deleteVehicle(event.vehicleId);
+        final updatedVehicles =
+            await vehicleRepository.getAllVehicles(); // Refresh list
+        emit(VehicleLoaded(updatedVehicles));
+      } catch (error) {
+        emit(VehicleError('Failed to delete vehicle: $error'));
+      }
     }
   }
 }

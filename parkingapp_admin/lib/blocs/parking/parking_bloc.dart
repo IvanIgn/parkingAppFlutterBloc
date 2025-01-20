@@ -7,44 +7,64 @@ import 'package:shared/shared.dart';
 part 'parking_event.dart';
 part 'parking_state.dart';
 
-class ParkingsBloc extends Bloc<ParkingsEvent, ParkingsState> {
-  ParkingsBloc() : super(ParkingsInitial());
+// we need to copy the style from VehicleBloc to ParkingsBloc
 
-  @override
-  Stream<ParkingsState> mapEventToState(ParkingsEvent event) async* {
-    if (event is FetchParkingsEvent) {
-      yield ParkingsLoading();
-      try {
-        final parkings = await ParkingRepository.instance.getAllParkings();
-        yield ParkingsLoaded(parkings);
-      } catch (e) {
-        yield ParkingsError('Error loading parkings: $e');
-      }
-    } else if (event is AddParkingEvent) {
-      try {
-        await ParkingRepository.instance.createParking(event.newParking);
-        yield ParkingsAddSuccess();
-        add(FetchParkingsEvent());
-      } catch (e) {
-        yield ParkingsError('Error adding parking: $e');
-      }
-    } else if (event is EditParkingEvent) {
-      try {
-        await ParkingRepository.instance
-            .updateParking(event.updatedParking.id, event.updatedParking);
-        yield ParkingsEditSuccess();
-        add(FetchParkingsEvent());
-      } catch (e) {
-        yield ParkingsError('Error editing parking: $e');
-      }
-    } else if (event is DeleteParkingEvent) {
-      try {
-        await ParkingRepository.instance.deleteParking(event.parkingId);
-        yield ParkingsDeleteSuccess();
-        add(FetchParkingsEvent());
-      } catch (e) {
-        yield ParkingsError('Error deleting parking: $e');
-      }
+class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
+  final ParkingRepository _parkingRepository = ParkingRepository.instance;
+
+  ParkingsBloc() : super(MonitorParkingsInitialState()) {
+    on<LoadParkingsEvent>(_onLoadParkingsEvent);
+    on<AddParkingEvent>(_onAddParkingEvent);
+    on<EditParkingEvent>(_onEditParkingEvent);
+    on<DeleteParkingEvent>(_onDeleteParkingEvent);
+  }
+
+  Future<void> _onLoadParkingsEvent(
+    LoadParkingsEvent event,
+    Emitter<MonitorParkingsState> emit,
+  ) async {
+    emit(MonitorParkingsLoadingState());
+    try {
+      final parkings = await _parkingRepository.getAllParkings();
+      emit(MonitorParkingsLoadedState(parkings));
+    } catch (e) {
+      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onAddParkingEvent(
+    AddParkingEvent event,
+    Emitter<MonitorParkingsState> emit,
+  ) async {
+    try {
+      await _parkingRepository.createParking(event.parking);
+      add(LoadParkingsEvent()); // Refresh list after adding parking
+    } catch (e) {
+      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onEditParkingEvent(
+    EditParkingEvent event,
+    Emitter<MonitorParkingsState> emit,
+  ) async {
+    try {
+      await _parkingRepository.updateParking(event.parkingId, event.parking);
+      add(LoadParkingsEvent()); // Refresh list after editing parking
+    } catch (e) {
+      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteParkingEvent(
+    DeleteParkingEvent event,
+    Emitter<MonitorParkingsState> emit,
+  ) async {
+    try {
+      await _parkingRepository.deleteParking(event.parkingId);
+      add(LoadParkingsEvent()); // Refresh list after deleting parking
+    } catch (e) {
+      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
     }
   }
 }

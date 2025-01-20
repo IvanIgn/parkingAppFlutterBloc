@@ -5,34 +5,34 @@ abstract class VehicleEvent extends Equatable {
   const VehicleEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class FetchVehiclesEvent extends VehicleEvent {}
+class LoadVehicles extends VehicleEvent {}
 
-class AddVehicleEvent extends VehicleEvent {
+class AddVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  const AddVehicleEvent(this.vehicle);
+  const AddVehicle(this.vehicle);
 
   @override
-  List<Object> get props => [vehicle];
+  List<Object?> get props => [vehicle];
 }
 
-class UpdateVehicleEvent extends VehicleEvent {
+class UpdateVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  const UpdateVehicleEvent(this.vehicle);
+  const UpdateVehicle(this.vehicle);
 
   @override
-  List<Object> get props => [vehicle];
+  List<Object?> get props => [vehicle];
 }
 
-class DeleteVehicleEvent extends VehicleEvent {
-  final String vehicleId;
+class DeleteVehicle extends VehicleEvent {
+  final int vehicleId;
 
-  const DeleteVehicleEvent(this.vehicleId);
+  const DeleteVehicle(this.vehicleId);
 
   @override
-  List<Object> get props => [vehicleId];
+  List<Object?> get props => [vehicleId];
 }

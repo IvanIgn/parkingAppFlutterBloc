@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parkingapp_admin/views/manage_parkingspaces_view.dart'
     as parkingspaces;
-import 'package:parkingapp_admin/views/monitor_parking_view.dart' as monitor;
+import 'package:parkingapp_admin/views/monitor_parkings_view.dart' as parkings;
 import 'package:parkingapp_admin/views/overview_statistics_view.dart'
     as overview;
 import 'package:parkingapp_admin/views/manage_persons_view.dart' as persons;
@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const persons.ManagePersonsView(),
     const vehicles.ManageVehiclesView(),
     const parkingspaces.ManageParkingSpacesView(),
-    const monitor.MonitorParkingsView(),
+    const parkings.MonitorParkingsView(),
     const overview.OverviewStatisticsView(),
     const settings.SettingsView(),
   ];
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildNavigationRailDestination(
                 index: 3,
                 icon: Icons.local_parking,
-                label: 'Övervakning',
+                label: 'Hantera Parkeringar',
               ),
               _buildNavigationRailDestination(
                 index: 4,

@@ -1,9 +1,8 @@
-// parking_space_bloc.dart
-
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:shared/shared.dart';
-import 'package:equatable/equatable.dart';
 
 part 'parking_space_event.dart';
 part 'parking_space_state.dart';
@@ -11,7 +10,7 @@ part 'parking_space_state.dart';
 class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
   final ParkingSpaceRepository parkingSpaceRepository;
 
-  ParkingSpaceBloc(this.parkingSpaceRepository) : super(ParkingSpaceInitial()) {
+  ParkingSpaceBloc(this.parkingSpaceRepository) : super(ParkingSpaceLoading()) {
     on<LoadParkingSpaces>(_onLoadParkingSpaces);
     on<AddParkingSpace>(_onAddParkingSpace);
     on<UpdateParkingSpace>(_onUpdateParkingSpace);
@@ -19,25 +18,29 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
   }
 
   Future<void> _onLoadParkingSpaces(
-      LoadParkingSpaces event, Emitter<ParkingSpaceState> emit) async {
+    LoadParkingSpaces event,
+    Emitter<ParkingSpaceState> emit,
+  ) async {
     emit(ParkingSpaceLoading());
     try {
       final parkingSpaces = await parkingSpaceRepository.getAllParkingSpaces();
       emit(ParkingSpaceLoaded(parkingSpaces));
-    } catch (error) {
-      emit(ParkingSpaceError('Failed to load parking spaces: $error'));
+    } catch (e) {
+      emit(const ParkingSpaceError("Failed to load parking spaces."));
     }
   }
 
   Future<void> _onAddParkingSpace(
-      AddParkingSpace event, Emitter<ParkingSpaceState> emit) async {
+    AddParkingSpace event,
+    Emitter<ParkingSpaceState> emit,
+  ) async {
     if (state is ParkingSpaceLoaded) {
       final currentState = state as ParkingSpaceLoaded;
       try {
         await parkingSpaceRepository.createParkingSpace(event.parkingSpace);
-        final updatedSpaces = List.of(currentState.parkingSpaces)
-          ..add(event.parkingSpace);
-        emit(ParkingSpaceLoaded(updatedSpaces));
+        final updatedParkingSpaces =
+            await parkingSpaceRepository.getAllParkingSpaces(); // Refresh list
+        emit(ParkingSpaceLoaded(updatedParkingSpaces));
       } catch (error) {
         emit(ParkingSpaceError('Failed to add parking space: $error'));
       }
@@ -45,16 +48,17 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
   }
 
   Future<void> _onUpdateParkingSpace(
-      UpdateParkingSpace event, Emitter<ParkingSpaceState> emit) async {
+    UpdateParkingSpace event,
+    Emitter<ParkingSpaceState> emit,
+  ) async {
     if (state is ParkingSpaceLoaded) {
       final currentState = state as ParkingSpaceLoaded;
       try {
         await parkingSpaceRepository.updateParkingSpace(
-            event.id, event.updatedParkingSpace);
-        final updatedSpaces = currentState.parkingSpaces.map((space) {
-          return space.id == event.id ? event.updatedParkingSpace : space;
-        }).toList();
-        emit(ParkingSpaceLoaded(updatedSpaces));
+            event.parkingSpace.id, event.parkingSpace);
+        final updatedParkingSpaces =
+            await parkingSpaceRepository.getAllParkingSpaces(); // Refresh list
+        emit(ParkingSpaceLoaded(updatedParkingSpaces));
       } catch (error) {
         emit(ParkingSpaceError('Failed to update parking space: $error'));
       }
@@ -62,15 +66,16 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
   }
 
   Future<void> _onDeleteParkingSpace(
-      DeleteParkingSpace event, Emitter<ParkingSpaceState> emit) async {
+    DeleteParkingSpace event,
+    Emitter<ParkingSpaceState> emit,
+  ) async {
     if (state is ParkingSpaceLoaded) {
       final currentState = state as ParkingSpaceLoaded;
       try {
-        await parkingSpaceRepository.deleteParkingSpace(event.id);
-        final updatedSpaces = currentState.parkingSpaces
-            .where((space) => space.id != event.id)
-            .toList();
-        emit(ParkingSpaceLoaded(updatedSpaces));
+        await parkingSpaceRepository.deleteParkingSpace(event.parkingSpaceId);
+        final updatedParkingSpaces =
+            await parkingSpaceRepository.getAllParkingSpaces(); // Refresh list
+        emit(ParkingSpaceLoaded(updatedParkingSpaces));
       } catch (error) {
         emit(ParkingSpaceError('Failed to delete parking space: $error'));
       }

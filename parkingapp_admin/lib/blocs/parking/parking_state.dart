@@ -1,40 +1,19 @@
 part of 'parking_bloc.dart';
 
-abstract class ParkingsState {}
+abstract class MonitorParkingsState {}
 
-class ParkingsInitial extends ParkingsState {}
+class MonitorParkingsInitialState extends MonitorParkingsState {}
 
-class ParkingsLoading extends ParkingsState {}
+class MonitorParkingsLoadingState extends MonitorParkingsState {}
 
-class ParkingsLoaded extends ParkingsState {
+class MonitorParkingsLoadedState extends MonitorParkingsState {
   final List<Parking> parkings;
-  ParkingsLoaded(this.parkings);
+
+  MonitorParkingsLoadedState(this.parkings);
 }
 
-class ParkingsError extends ParkingsState {
-  final String message;
-  ParkingsError(this.message);
-}
+class MonitorParkingsErrorState extends MonitorParkingsState {
+  final String errorMessage;
 
-class ParkingsAddSuccess extends ParkingsState {}
-
-class ParkingsEditSuccess extends ParkingsState {}
-
-class ParkingsDeleteSuccess extends ParkingsState {}
-
-class OverviewStatisticsInitial extends ParkingsState {}
-
-class OverviewStatisticsLoading extends ParkingsState {}
-
-class OverviewStatisticsLoaded extends ParkingsState {
-  final List<Parking> parkings;
-  final Map<String, dynamic> statistics;
-
-  OverviewStatisticsLoaded(this.parkings, this.statistics);
-}
-
-class OverviewStatisticsError extends ParkingsState {
-  final String message;
-
-  OverviewStatisticsError(this.message);
+  MonitorParkingsErrorState({required this.errorMessage});
 }

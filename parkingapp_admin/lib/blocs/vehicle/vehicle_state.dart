@@ -5,33 +5,27 @@ abstract class VehicleState extends Equatable {
   const VehicleState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class VehicleInitialState extends VehicleState {}
+class VehicleInitial extends VehicleState {}
 
-class VehicleLoadingState extends VehicleState {}
+class VehicleLoading extends VehicleState {}
 
-class VehicleLoadedState extends VehicleState {
+class VehicleLoaded extends VehicleState {
   final List<Vehicle> vehicles;
 
-  const VehicleLoadedState(this.vehicles);
+  const VehicleLoaded(this.vehicles);
 
   @override
-  List<Object> get props => [vehicles];
+  List<Object?> get props => [vehicles];
 }
 
-class VehicleErrorState extends VehicleState {
+class VehicleError extends VehicleState {
   final String message;
 
-  const VehicleErrorState(this.message);
+  const VehicleError(this.message);
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message];
 }
-
-class VehicleAddedState extends VehicleState {}
-
-class VehicleUpdatedState extends VehicleState {}
-
-class VehicleDeletedState extends VehicleState {}
