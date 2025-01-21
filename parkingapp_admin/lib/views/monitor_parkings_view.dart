@@ -64,10 +64,6 @@ class MonitorParkingsView extends StatelessWidget {
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(
-                        'Ägare: ${parking.vehicle?.owner?.name}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      Text(
                         'Fordons nummer: ${parking.vehicle!.regNumber}',
                         style: const TextStyle(fontSize: 14),
                       ),

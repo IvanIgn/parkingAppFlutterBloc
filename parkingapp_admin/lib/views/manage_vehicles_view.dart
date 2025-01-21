@@ -1,3 +1,4 @@
+import 'package:client_repositories/async_http_repos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
@@ -11,6 +12,7 @@ class ManageVehiclesView extends StatelessWidget {
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
     String selectedVehicleType = 'Bil';
+    Person? selectedOwner;
 
     showDialog(
       context: context,
@@ -53,6 +55,36 @@ class ManageVehiclesView extends StatelessWidget {
                         labelText: 'Fordonstyp',
                       ),
                     ),
+                    FutureBuilder<List<Person>>(
+                      future: PersonRepository.instance.getAllPersons(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text(
+                              'Fel vid hämtning av personer: ${snapshot.error}');
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Text('Inga personer tillgängliga.');
+                        }
+
+                        final personer = snapshot.data!;
+                        return DropdownButtonFormField<Person>(
+                          decoration:
+                              const InputDecoration(labelText: 'Välj ägare'),
+                          items: personer.map((person) {
+                            return DropdownMenuItem<Person>(
+                              value: person,
+                              child: Text(person.name),
+                            );
+                          }).toList(),
+                          onChanged: (person) {
+                            selectedOwner = person;
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -81,6 +113,8 @@ class ManageVehiclesView extends StatelessWidget {
                     final newVehicle = Vehicle(
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
+                      owner: selectedOwner ??
+                          Person(name: "Ingen ägare", personNumber: ''),
                     );
 
                     context.read<VehicleBloc>().add(AddVehicle(newVehicle));
@@ -100,6 +134,7 @@ class ManageVehiclesView extends StatelessWidget {
     final TextEditingController regNumberController =
         TextEditingController(text: vehicle.regNumber);
     String selectedVehicleType = vehicle.vehicleType;
+    Person? selectedOwner = vehicle.owner;
 
     showDialog(
       context: context,
@@ -108,7 +143,7 @@ class ManageVehiclesView extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text("Uppdatera fordon"),
+              title: const Text("Redigera fordon"),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -123,8 +158,8 @@ class ManageVehiclesView extends StatelessWidget {
                       value: selectedVehicleType,
                       items: <String>[
                         'Bil',
-                        'Motorcykel',
                         'Lastbil',
+                        'Motorcykel',
                         'Moped',
                         'Annat'
                       ].map((String value) {
@@ -141,6 +176,36 @@ class ManageVehiclesView extends StatelessWidget {
                       decoration: const InputDecoration(
                         labelText: 'Fordonstyp',
                       ),
+                    ),
+                    FutureBuilder<List<Person>>(
+                      future: PersonRepository.instance.getAllPersons(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text(
+                              'Fel vid hämtning av personer: ${snapshot.error}');
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Text('Inga personer tillgängliga.');
+                        }
+
+                        final personer = snapshot.data!;
+                        return DropdownButtonFormField<Person>(
+                          decoration:
+                              const InputDecoration(labelText: 'Välj ägare'),
+                          items: personer.map((person) {
+                            return DropdownMenuItem<Person>(
+                              value: person,
+                              child: Text(person.name),
+                            );
+                          }).toList(),
+                          onChanged: (person) {
+                            selectedOwner = person;
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -161,7 +226,7 @@ class ManageVehiclesView extends StatelessWidget {
                         const SnackBar(
                           content: Text(
                               "Fordons registreringsnumret ska följa detta format: ABC123"),
-                          duration: Duration(seconds: 2),
+                          duration: Duration(seconds: 1),
                         ),
                       );
                       return;
@@ -171,6 +236,8 @@ class ManageVehiclesView extends StatelessWidget {
                       id: vehicle.id,
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
+                      owner: selectedOwner ??
+                          Person(name: "Ingen ägare", personNumber: ''),
                     );
 
                     context
@@ -276,6 +343,16 @@ class ManageVehiclesView extends StatelessWidget {
                         'Fordonstyp: ${vehicle.vehicleType}',
                         style: const TextStyle(fontSize: 14),
                       ),
+                      if (vehicle.owner != null)
+                        Text(
+                          'Ägare: ${vehicle.owner?.name}, Personnummer: ${vehicle.owner?.personNumber}',
+                          style: const TextStyle(fontSize: 14),
+                        )
+                      else
+                        const Text(
+                          'Ingen ägare',
+                          style: TextStyle(fontSize: 14),
+                        ),
                     ],
                   ),
                   trailing: Row(
