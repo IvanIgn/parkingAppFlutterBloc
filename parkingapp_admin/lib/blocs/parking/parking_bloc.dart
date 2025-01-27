@@ -11,9 +11,11 @@ part 'parking_state.dart';
 // we need to copy the style from VehicleBloc to ParkingsBloc
 
 class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
-  final ParkingRepository _parkingRepository = ParkingRepository.instance;
+  final ParkingRepository _parkingRepository;
 
-  ParkingsBloc() : super(MonitorParkingsInitialState()) {
+  ParkingsBloc(
+    ParkingRepository parkingRepository
+  ) : _parkingRepository = parkingRepository, super(MonitorParkingsInitialState()) {
     on<LoadParkingsEvent>(_onLoadParkingsEvent);
     on<AddParkingEvent>(_onAddParkingEvent);
     on<EditParkingEvent>(_onEditParkingEvent);

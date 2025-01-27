@@ -69,7 +69,7 @@ class ParkingAdminApp extends StatelessWidget {
         create: (_) => VehicleBloc(vehicleRepository)..add(LoadVehicles()),
       ),
       BlocProvider<ParkingsBloc>(
-          create: (_) => ParkingsBloc()..add(LoadParkingsEvent())),
+          create: (_) => ParkingsBloc(ParkingRepository.instance)..add(LoadParkingsEvent())),
       BlocProvider<ParkingSpaceBloc>(
         create: (_) =>
             ParkingSpaceBloc(parkingSpaceRepository)..add(LoadParkingSpaces()),
