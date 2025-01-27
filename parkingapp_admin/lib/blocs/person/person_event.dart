@@ -1,24 +1,3 @@
-// part of 'person_bloc.dart';
-
-// abstract class PersonEvent {}
-
-// class FetchPersonsEvent extends PersonEvent {}
-
-// class AddPersonEvent extends PersonEvent {
-//   final Person person;
-//   AddPersonEvent(this.person);
-// }
-
-// class UpdatePersonEvent extends PersonEvent {
-//   final Person person;
-//   UpdatePersonEvent(this.person);
-// }
-
-// class DeletePersonEvent extends PersonEvent {
-//   final int personId;
-//   DeletePersonEvent(this.personId);
-// }
-
 part of 'person_bloc.dart';
 
 /// Base class for all person-related events.
@@ -28,7 +7,8 @@ abstract class PersonEvent {
 
 /// Event to fetch all persons.
 class FetchPersonsEvent extends PersonEvent {
-  const FetchPersonsEvent();
+  @override
+  List<Object?> get props => [];
 }
 
 /// Event to add a new person.

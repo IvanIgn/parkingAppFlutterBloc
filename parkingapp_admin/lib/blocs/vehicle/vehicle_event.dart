@@ -1,4 +1,3 @@
-// vehicle_event.dart
 part of 'vehicle_bloc.dart';
 
 abstract class VehicleEvent extends Equatable {
@@ -8,8 +7,10 @@ abstract class VehicleEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// Event to load all vehicles
 class LoadVehicles extends VehicleEvent {}
 
+// Event to add a new vehicle
 class AddVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
@@ -19,6 +20,7 @@ class AddVehicle extends VehicleEvent {
   List<Object?> get props => [vehicle];
 }
 
+// Event to update an existing vehicle
 class UpdateVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
@@ -28,6 +30,7 @@ class UpdateVehicle extends VehicleEvent {
   List<Object?> get props => [vehicle];
 }
 
+// Event to delete a vehicle by its ID
 class DeleteVehicle extends VehicleEvent {
   final int vehicleId;
 

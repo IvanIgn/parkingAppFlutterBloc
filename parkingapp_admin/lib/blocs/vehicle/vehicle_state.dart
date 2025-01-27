@@ -1,4 +1,3 @@
-// vehicle_state.dart
 part of 'vehicle_bloc.dart';
 
 abstract class VehicleState extends Equatable {
@@ -28,4 +27,14 @@ class VehicleError extends VehicleState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class VehicleUpdated extends VehicleState {
+  @override
+  List<Object?> get props => [];
+}
+
+class VehicleDeleted extends VehicleState {
+  @override
+  List<Object?> get props => [];
 }

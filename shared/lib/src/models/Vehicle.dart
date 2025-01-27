@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:objectbox/objectbox.dart';
 import 'package:shared/src/models/Person.dart';
+import 'package:equatable/equatable.dart';
 
 @Entity()
-class Vehicle {
+class Vehicle extends Equatable {
   @Id()
   int id;
-  String regNumber;
-  String vehicleType;
+  final String regNumber;
+  final String vehicleType;
 
   @Transient()
   Person? owner;
@@ -56,4 +57,7 @@ class Vehicle {
       'owner': owner?.toJson(), // Null check for owner
     };
   }
+
+  @override
+  List<Object?> get props => [id, regNumber, vehicleType, owner];
 }

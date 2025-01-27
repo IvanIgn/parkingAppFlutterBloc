@@ -68,6 +68,10 @@ class ParkingSpaceRepository {
 
     _checkResponse(response);
 
+    if (response.body.isEmpty) {
+      return [];
+    }
+
     try {
       final json = jsonDecode(response.body);
       return (json as List)

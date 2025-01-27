@@ -1,63 +1,15 @@
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:client_repositories/async_http_repos.dart';
-// import 'package:bloc/bloc.dart';
-// import 'package:shared/shared.dart';
-
-// part 'person_event.dart';
-// part 'person_state.dart';
-
-// class PersonBloc extends Bloc<PersonEvent, PersonState> {
-//   PersonBloc() : super(PersonInitialState());
-
-//   @override
-//   Stream<PersonState> mapEventToState(PersonEvent event) async* {
-//     if (event is FetchPersonsEvent) {
-//       yield PersonLoadingState();
-//       try {
-//         final persons = await PersonRepository.instance.getAllPersons();
-//         yield PersonLoadedState(persons);
-//       } catch (e) {
-//         yield PersonErrorState("Error fetching data: $e");
-//       }
-//     } else if (event is AddPersonEvent) {
-//       try {
-//         await PersonRepository.instance.createPerson(event.person);
-//         yield PersonAddedState();
-//         add(FetchPersonsEvent()); // Refresh the list after adding
-//       } catch (e) {
-//         yield PersonErrorState("Error adding person: $e");
-//       }
-//     } else if (event is UpdatePersonEvent) {
-//       try {
-//         await PersonRepository.instance
-//             .updatePerson(event.person.id, event.person);
-//         yield PersonUpdatedState();
-//         add(FetchPersonsEvent()); // Refresh the list after updating
-//       } catch (e) {
-//         yield PersonErrorState("Error updating person: $e");
-//       }
-//     } else if (event is DeletePersonEvent) {
-//       try {
-//         await PersonRepository.instance.deletePerson(event.personId);
-//         yield PersonDeletedState();
-//         add(FetchPersonsEvent()); // Refresh the list after deletion
-//       } catch (e) {
-//         yield PersonErrorState("Error deleting person: $e");
-//       }
-//     }
-//   }
-// }
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:client_repositories/async_http_repos.dart';
-import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
+import 'package:equatable/equatable.dart';
 
 part 'person_event.dart';
 part 'person_state.dart';
 
 class PersonBloc extends Bloc<PersonEvent, PersonState> {
-  PersonBloc() : super(const PersonInitialState()) {
+  final PersonRepository repository;
+
+  PersonBloc({required this.repository}) : super(PersonInitialState()) {
     on<FetchPersonsEvent>(_onFetchPersons);
     on<AddPersonEvent>(_onAddPerson);
     on<UpdatePersonEvent>(_onUpdatePerson);
@@ -66,21 +18,26 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
 
   Future<void> _onFetchPersons(
       FetchPersonsEvent event, Emitter<PersonState> emit) async {
-    emit(const PersonLoadingState());
+    emit(PersonLoadingState());
     try {
-      final persons = await PersonRepository.instance.getAllPersons();
+      final persons = await repository.getAllPersons();
       emit(PersonLoadedState(persons));
     } catch (e) {
-      emit(PersonErrorState("Error fetching data: $e"));
+      emit(PersonErrorState("Error fetching persons: $e"));
     }
   }
 
   Future<void> _onAddPerson(
       AddPersonEvent event, Emitter<PersonState> emit) async {
+    emit(PersonLoadingState()); // Emit loading state once
     try {
-      await PersonRepository.instance.createPerson(event.person);
-      emit(const PersonAddedState());
-      add(const FetchPersonsEvent());
+      final person =
+          await repository.createPerson(event.person); // Create the person
+      emit(PersonAddedState()); // Emit added state
+
+      // Fetch the updated list of persons, but avoid emitting another loading state
+      final persons = await repository.getAllPersons();
+      emit(PersonLoadedState(persons)); // Emit the updated list of persons
     } catch (e) {
       emit(PersonErrorState("Error adding person: $e"));
     }
@@ -88,11 +45,15 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
 
   Future<void> _onUpdatePerson(
       UpdatePersonEvent event, Emitter<PersonState> emit) async {
+    emit(PersonLoadingState()); // Emit loading state first
     try {
-      await PersonRepository.instance
-          .updatePerson(event.person.id, event.person);
-      emit(const PersonUpdatedState());
-      add(const FetchPersonsEvent());
+      await repository.updatePerson(
+          event.person.id, event.person); // Update the person
+      emit(PersonUpdatedState()); // Emit updated state
+
+      // Now, fetch the updated list of persons, but do not emit loading state again
+      final persons = await repository.getAllPersons();
+      emit(PersonLoadedState(persons)); // Emit updated list
     } catch (e) {
       emit(PersonErrorState("Error updating person: $e"));
     }
@@ -100,12 +61,16 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
 
   Future<void> _onDeletePerson(
       DeletePersonEvent event, Emitter<PersonState> emit) async {
+    emit(PersonLoadingState()); // Emit loading state first
     try {
-      await PersonRepository.instance.deletePerson(event.personId);
-      emit(const PersonDeletedState());
-      add(const FetchPersonsEvent());
+      await repository.deletePerson(event.personId);
+      emit(PersonDeletedState()); // Emit deleted state after deletion
+      // Optionally fetch the updated list of persons
+      final persons = await repository.getAllPersons();
+      emit(PersonLoadedState(persons)); // Emit loaded state with updated list
     } catch (e) {
-      emit(PersonErrorState("Error deleting person: $e"));
+      emit(PersonErrorState(
+          "Error deleting person: $e")); // Emit error state if something goes wrong
     }
   }
 }

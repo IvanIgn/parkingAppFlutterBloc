@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:objectbox/objectbox.dart';
 import 'package:shared/src/models/ParkingSpace.dart';
 import 'package:shared/src/models/Vehicle.dart';
+import 'package:equatable/equatable.dart';
 
 @Entity()
-class Parking {
+class Parking extends Equatable {
   @Id()
   int id;
   @Transient()
   Vehicle? vehicle;
   @Transient()
   ParkingSpace? parkingSpace; // Nullable parkingSpace
-  DateTime startTime;
-  DateTime endTime;
+  final DateTime startTime;
+  final DateTime endTime;
 
   Parking({
     this.vehicle,
@@ -63,4 +64,7 @@ class Parking {
       'endTime': endTime.toIso8601String(),
     };
   }
+
+  @override
+  List<Object?> get props => [id, vehicle, parkingSpace, startTime, endTime];
 }

@@ -1,69 +1,109 @@
 // part of 'person_bloc.dart';
 
-// abstract class PersonState {}
+// /// Base class for all person-related states.
+// class PersonState extends Equatable {
+//   @override
+//   List<Object?> get props => [];
+// }
 
-// class PersonInitialState extends PersonState {}
+// /// Initial state when the bloc is first created.
+// class PersonInitialState extends PersonState {
+//   PersonInitialState();
+// }
 
-// class PersonLoadingState extends PersonState {}
+// /// State indicating a loading process.
+// class PersonLoadingState extends PersonState {
+//   @override
+//   List<Object?> get props => [];
+// }
+
+// /// State when the list of persons is successfully loaded.
+// // class PersonLoadedState extends PersonState {
+// //   final List<Person> persons;
+
+// //   PersonLoadedState(this.persons);
+// // }
 
 // class PersonLoadedState extends PersonState {
 //   final List<Person> persons;
+
 //   PersonLoadedState(this.persons);
+
+//   @override
+//   List<Object?> get props => [persons];
 // }
 
+// /// State indicating an error occurred.
 // class PersonErrorState extends PersonState {
 //   final String message;
+
 //   PersonErrorState(this.message);
 // }
 
-// class PersonAddedState extends PersonState {}
+// /// State after successfully adding a person.
+// class PersonAddedState extends PersonState {
+//   PersonAddedState();
+// }
 
-// class PersonUpdatedState extends PersonState {}
+// /// State after successfully updating a person.
+// class PersonUpdatedState extends PersonState {
+//   PersonUpdatedState();
+// }
 
-// class PersonDeletedState extends PersonState {}
-
+// /// State after successfully deleting a person.
+// class PersonDeletedState extends PersonState {
+//   PersonDeletedState();
+// }
 part of 'person_bloc.dart';
 
 /// Base class for all person-related states.
-abstract class PersonState {
-  const PersonState();
+class PersonState extends Equatable {
+  @override
+  List<Object?> get props => [];
 }
 
 /// Initial state when the bloc is first created.
 class PersonInitialState extends PersonState {
-  const PersonInitialState();
+  PersonInitialState();
 }
 
 /// State indicating a loading process.
 class PersonLoadingState extends PersonState {
-  const PersonLoadingState();
+  @override
+  List<Object?> get props => [];
 }
 
 /// State when the list of persons is successfully loaded.
 class PersonLoadedState extends PersonState {
   final List<Person> persons;
 
-  const PersonLoadedState(this.persons);
+  PersonLoadedState(this.persons);
+
+  @override
+  List<Object?> get props => [persons];
 }
 
 /// State indicating an error occurred.
 class PersonErrorState extends PersonState {
   final String message;
 
-  const PersonErrorState(this.message);
+  PersonErrorState(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /// State after successfully adding a person.
 class PersonAddedState extends PersonState {
-  const PersonAddedState();
+  PersonAddedState();
 }
 
 /// State after successfully updating a person.
 class PersonUpdatedState extends PersonState {
-  const PersonUpdatedState();
+  PersonUpdatedState();
 }
 
 /// State after successfully deleting a person.
 class PersonDeletedState extends PersonState {
-  const PersonDeletedState();
+  PersonDeletedState();
 }

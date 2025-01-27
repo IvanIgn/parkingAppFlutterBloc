@@ -1,11 +1,12 @@
 import 'package:objectbox/objectbox.dart';
+import 'package:equatable/equatable.dart';
 
 @Entity()
-class ParkingSpace {
+class ParkingSpace extends Equatable {
   @Id()
   int id;
-  String address;
-  int pricePerHour;
+  final String address;
+  final int pricePerHour;
 
   ParkingSpace({
     required this.address,
@@ -32,4 +33,7 @@ class ParkingSpace {
       'pricePerHour': pricePerHour,
     };
   }
+
+  @override
+  List<Object?> get props => [id, address, pricePerHour];
 }

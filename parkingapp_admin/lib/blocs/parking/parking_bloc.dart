@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
+import 'package:equatable/equatable.dart';
 
 part 'parking_event.dart';
 part 'parking_state.dart';
@@ -26,7 +27,8 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     emit(MonitorParkingsLoadingState());
     try {
       final parkings = await _parkingRepository.getAllParkings();
-      emit(MonitorParkingsLoadedState(parkings));
+      emit(
+          MonitorParkingsLoadedState(parkings)); // Ensure this line is executed
     } catch (e) {
       emit(MonitorParkingsErrorState(errorMessage: e.toString()));
     }

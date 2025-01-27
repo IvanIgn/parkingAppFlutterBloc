@@ -12,11 +12,31 @@ class VehicleRepository {
   // Инициализируем Box<Vehicle> через конфигурацию сервера
   final Box<Vehicle> vehicleBox = ServerConfig.instance.store.box<Vehicle>();
 
+  // Future<Vehicle?> add(Vehicle vehicle) async {
+  //   vehicleBox.put(vehicle, mode: PutMode.insert);
+
+  //   // above command did not error
+  //   return vehicle;
+  // }
+
+  // Future<Vehicle> add(Vehicle vehicle) async {
+  //   vehicleBox.put(vehicle, mode: PutMode.insert);
+  //   return vehicle; // Always return a valid Vehicle, not null
+  // }
+
+  // Future<Vehicle> add(Vehicle vehicle) async {
+  //   try {
+  //     vehicleBox.put(vehicle, mode: PutMode.insert);
+  //     return vehicle; // Make sure this never returns null
+  //   } catch (e) {
+  //     // Handle any potential error and ensure that the return type matches
+  //     throw Exception('Error adding vehicle: $e');
+  //   }
+  // }
+
   Future<Vehicle?> add(Vehicle vehicle) async {
     vehicleBox.put(vehicle, mode: PutMode.insert);
-
-    // above command did not error
-    return vehicle;
+    return vehicle; // Ensure this is returning the correct vehicle after adding it.
   }
 
   Future<Vehicle?> getById(int id) async {
