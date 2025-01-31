@@ -14,13 +14,12 @@ void main() {
   late MockParkingRepository mockParkingRepository;
 
   setUpAll(() {
-    // Register the fallback value for Person
     registerFallbackValue(FakeParking());
   });
 
   setUp(() {
     mockParkingRepository = MockParkingRepository();
-    parkingsBloc = ParkingsBloc();
+    parkingsBloc = ParkingsBloc(parkingRepository: mockParkingRepository);
   });
 
   tearDown(() {
@@ -28,72 +27,50 @@ void main() {
   });
 
   group('LoadParkingsEvent', () {
+    final mockParkings = [
+      Parking(
+        id: 1,
+        startTime: DateTime.now(),
+        endTime: DateTime.now().add(const Duration(hours: 2)),
+        parkingSpace: ParkingSpace(
+          id: 1,
+          address: 'Testadress 10',
+          pricePerHour: 100,
+        ),
+        vehicle: Vehicle(
+          regNumber: 'ABC111',
+          vehicleType: 'Bil',
+          owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
+        ),
+      ),
+      Parking(
+        id: 2,
+        startTime: DateTime.now(),
+        endTime: DateTime.now().add(const Duration(hours: 3)),
+        parkingSpace: ParkingSpace(
+          id: 2,
+          address: 'Testadress 20',
+          pricePerHour: 200,
+        ),
+        vehicle: Vehicle(
+          regNumber: 'ABC222',
+          vehicleType: 'Lastbil',
+          owner: Person(name: 'TestNamn2', personNumber: '199501072222'),
+        ),
+      ),
+    ];
+
     blocTest<ParkingsBloc, MonitorParkingsState>(
       'emits [MonitorParkingsLoadingState, MonitorParkingsLoadedState] on successful fetch',
       build: () {
-        when(() => mockParkingRepository.getAllParkings()).thenAnswer(
-          (_) async => [
-            Parking(
-              id: 1,
-              startTime: DateTime.now(),
-              endTime: DateTime.now().add(const Duration(hours: 2)),
-              parkingSpace: ParkingSpace(
-                  id: 1, address: 'Testadress 10', pricePerHour: 100),
-              vehicle: Vehicle(
-                regNumber: 'ABC111',
-                vehicleType: 'Bil',
-                owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
-              ),
-            ),
-            Parking(
-              id: 2,
-              startTime: DateTime.now(),
-              endTime: DateTime.now().add(const Duration(hours: 3)),
-              parkingSpace: ParkingSpace(
-                  id: 2, address: 'Testadress 20', pricePerHour: 200),
-              vehicle: Vehicle(
-                regNumber: 'ABC222',
-                vehicleType: 'Lastbil',
-                owner: Person(name: 'TestNamn2', personNumber: '199501072222'),
-              ),
-            ),
-          ],
-        );
+        when(() => mockParkingRepository.getAllParkings())
+            .thenAnswer((_) async => mockParkings);
         return parkingsBloc;
       },
-      act: (bloc) async {
-        bloc.add(LoadParkingsEvent());
-        await Future.delayed(
-            Duration(milliseconds: 500)); // Wait a bit to let BLoC process
-      },
+      act: (bloc) => bloc.add(LoadParkingsEvent()),
       expect: () => [
         MonitorParkingsLoadingState(),
-        MonitorParkingsLoadedState([
-          Parking(
-            id: 1,
-            startTime: DateTime.now(),
-            endTime: DateTime.now().add(const Duration(hours: 2)),
-            parkingSpace: ParkingSpace(
-                id: 1, address: 'Testadress 10', pricePerHour: 100),
-            vehicle: Vehicle(
-              regNumber: 'ABC111',
-              vehicleType: 'Bil',
-              owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
-            ),
-          ),
-          Parking(
-            id: 2,
-            startTime: DateTime.now(),
-            endTime: DateTime.now().add(const Duration(hours: 3)),
-            parkingSpace: ParkingSpace(
-                id: 2, address: 'Testadress 20', pricePerHour: 200),
-            vehicle: Vehicle(
-              regNumber: 'ABC222',
-              vehicleType: 'Lastbil',
-              owner: Person(name: 'TestNamn2', personNumber: '199501072222'),
-            ),
-          ),
-        ]),
+        MonitorParkingsLoadedState(mockParkings),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.getAllParkings()).called(1);
@@ -104,14 +81,14 @@ void main() {
       'emits [MonitorParkingsLoadingState, MonitorParkingsErrorState] on fetch failure',
       build: () {
         when(() => mockParkingRepository.getAllParkings())
-            .thenThrow(Exception('Failed to fetch parkings'));
+            .thenThrow(Exception('Failed to load parkings'));
         return parkingsBloc;
       },
       act: (bloc) => bloc.add(LoadParkingsEvent()),
       expect: () => [
         MonitorParkingsLoadingState(),
         MonitorParkingsErrorState(
-            errorMessage: 'Exception: Failed to fetch parkings'),
+            'Failed to load parkings. Details: Exception: Failed to load parkings'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.getAllParkings()).called(1);
@@ -124,16 +101,20 @@ void main() {
       id: 1,
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
-      parkingSpace:
-          ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
+      parkingSpace: ParkingSpace(
+        id: 1,
+        address: 'Testadress 10',
+        pricePerHour: 100,
+      ),
       vehicle: Vehicle(
-          regNumber: 'ABC111',
-          vehicleType: 'Bil',
-          owner: Person(name: 'TestNamn1', personNumber: '199501071111')),
+        regNumber: 'ABC111',
+        vehicleType: 'Bil',
+        owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
+      ),
     );
 
     blocTest<ParkingsBloc, MonitorParkingsState>(
-      'triggers LoadParkingsEvent on successful add',
+      'emits MonitorParkingsLoadedState on successful add',
       build: () {
         when(() => mockParkingRepository.createParking(parking))
             .thenAnswer((_) async => parking);
@@ -142,7 +123,10 @@ void main() {
         return parkingsBloc;
       },
       act: (bloc) => bloc.add(AddParkingEvent(parking)),
-      expect: () => [],
+      expect: () => [
+        MonitorParkingsLoadingState(),
+        MonitorParkingsLoadedState([parking]),
+      ],
       verify: (_) {
         verify(() => mockParkingRepository.createParking(parking)).called(1);
         verify(() => mockParkingRepository.getAllParkings()).called(1);
@@ -158,8 +142,7 @@ void main() {
       },
       act: (bloc) => bloc.add(AddParkingEvent(parking)),
       expect: () => [
-        MonitorParkingsErrorState(
-            errorMessage: 'Exception: Failed to add parking'),
+        MonitorParkingsErrorState('Exception: Failed to add parking'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.createParking(parking)).called(1);
@@ -172,16 +155,20 @@ void main() {
       id: 1,
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
-      parkingSpace:
-          ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
+      parkingSpace: ParkingSpace(
+        id: 1,
+        address: 'Testadress 10',
+        pricePerHour: 100,
+      ),
       vehicle: Vehicle(
-          regNumber: 'ABC111',
-          vehicleType: 'Bil',
-          owner: Person(name: 'TestNamn1', personNumber: '199501071111')),
+        regNumber: 'ABC111',
+        vehicleType: 'Bil',
+        owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
+      ),
     );
 
     blocTest<ParkingsBloc, MonitorParkingsState>(
-      'triggers LoadParkingsEvent on successful edit',
+      'emits MonitorParkingsLoadedState on successful edit',
       build: () {
         when(() => mockParkingRepository.updateParking(parking.id, parking))
             .thenAnswer((_) async => parking);
@@ -191,7 +178,10 @@ void main() {
       },
       act: (bloc) =>
           bloc.add(EditParkingEvent(parkingId: parking.id, parking: parking)),
-      expect: () => [],
+      expect: () => [
+        MonitorParkingsLoadingState(),
+        MonitorParkingsLoadedState([parking]),
+      ],
       verify: (_) {
         verify(() => mockParkingRepository.updateParking(parking.id, parking))
             .called(1);
@@ -210,7 +200,7 @@ void main() {
           bloc.add(EditParkingEvent(parkingId: parking.id, parking: parking)),
       expect: () => [
         MonitorParkingsErrorState(
-            errorMessage: 'Exception: Failed to edit parking'),
+            'Failed to edit parking. Details: Exception: Failed to edit parking'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.updateParking(parking.id, parking))
@@ -223,16 +213,19 @@ void main() {
     const parkingId = 1;
 
     blocTest<ParkingsBloc, MonitorParkingsState>(
-      'triggers LoadParkingsEvent on successful delete',
+      'emits MonitorParkingsLoadedState on successful delete',
       build: () {
         when(() => mockParkingRepository.deleteParking(parkingId))
-            .thenAnswer((_) async => Future.value());
+            .thenAnswer((_) async => FakeParking());
         when(() => mockParkingRepository.getAllParkings())
             .thenAnswer((_) async => []);
         return parkingsBloc;
       },
       act: (bloc) => bloc.add(DeleteParkingEvent(parkingId)),
-      expect: () => [],
+      expect: () => [
+        MonitorParkingsLoadingState(),
+        MonitorParkingsLoadedState(const []),
+      ],
       verify: (_) {
         verify(() => mockParkingRepository.deleteParking(parkingId)).called(1);
         verify(() => mockParkingRepository.getAllParkings()).called(1);
@@ -249,7 +242,7 @@ void main() {
       act: (bloc) => bloc.add(DeleteParkingEvent(parkingId)),
       expect: () => [
         MonitorParkingsErrorState(
-            errorMessage: 'Exception: Failed to delete parking'),
+            'Failed to delete parking. Details: Exception: Failed to delete parking'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.deleteParking(parkingId)).called(1);

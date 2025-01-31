@@ -13,6 +13,7 @@ import 'package:provider/single_child_widget.dart';
 // Define the repositories as final constants
 final vehicleRepository = VehicleRepository.instance;
 final parkingSpaceRepository = ParkingSpaceRepository.instance;
+final parkingRepository = ParkingRepository.instance;
 final personRepository = PersonRepository.instance;
 
 // Global ValueNotifier for dark mode
@@ -69,7 +70,9 @@ class ParkingAdminApp extends StatelessWidget {
         create: (_) => VehicleBloc(vehicleRepository)..add(LoadVehicles()),
       ),
       BlocProvider<ParkingsBloc>(
-          create: (_) => ParkingsBloc()..add(LoadParkingsEvent())),
+        create: (_) => ParkingsBloc(parkingRepository: parkingRepository)
+          ..add(LoadParkingsEvent()),
+      ),
       BlocProvider<ParkingSpaceBloc>(
         create: (_) =>
             ParkingSpaceBloc(parkingSpaceRepository)..add(LoadParkingSpaces()),

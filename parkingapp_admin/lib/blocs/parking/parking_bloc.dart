@@ -8,12 +8,11 @@ import 'package:equatable/equatable.dart';
 part 'parking_event.dart';
 part 'parking_state.dart';
 
-// we need to copy the style from VehicleBloc to ParkingsBloc
-
 class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
-  final ParkingRepository _parkingRepository = ParkingRepository.instance;
+  final ParkingRepository parkingRepository;
 
-  ParkingsBloc() : super(MonitorParkingsInitialState()) {
+  ParkingsBloc({required this.parkingRepository})
+      : super(MonitorParkingsInitialState()) {
     on<LoadParkingsEvent>(_onLoadParkingsEvent);
     on<AddParkingEvent>(_onAddParkingEvent);
     on<EditParkingEvent>(_onEditParkingEvent);
@@ -26,11 +25,11 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
   ) async {
     emit(MonitorParkingsLoadingState());
     try {
-      final parkings = await _parkingRepository.getAllParkings();
-      emit(
-          MonitorParkingsLoadedState(parkings)); // Ensure this line is executed
+      final parkings = await parkingRepository.getAllParkings();
+      emit(MonitorParkingsLoadedState(parkings));
     } catch (e) {
-      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+      emit(MonitorParkingsErrorState(
+          'Failed to load parkings. Details: ${e.toString()}'));
     }
   }
 
@@ -39,10 +38,10 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     Emitter<MonitorParkingsState> emit,
   ) async {
     try {
-      await _parkingRepository.createParking(event.parking);
-      add(LoadParkingsEvent()); // Refresh list after adding parking
+      await parkingRepository.createParking(event.parking);
+      add(LoadParkingsEvent());
     } catch (e) {
-      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+      emit(MonitorParkingsErrorState(e.toString()));
     }
   }
 
@@ -51,10 +50,11 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     Emitter<MonitorParkingsState> emit,
   ) async {
     try {
-      await _parkingRepository.updateParking(event.parkingId, event.parking);
-      add(LoadParkingsEvent()); // Refresh list after editing parking
+      await parkingRepository.updateParking(event.parkingId, event.parking);
+      add(LoadParkingsEvent());
     } catch (e) {
-      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+      emit(MonitorParkingsErrorState(
+          'Failed to edit parking. Details: ${e.toString()}'));
     }
   }
 
@@ -63,10 +63,11 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     Emitter<MonitorParkingsState> emit,
   ) async {
     try {
-      await _parkingRepository.deleteParking(event.parkingId);
-      add(LoadParkingsEvent()); // Refresh list after deleting parking
+      await parkingRepository.deleteParking(event.parkingId);
+      add(LoadParkingsEvent());
     } catch (e) {
-      emit(MonitorParkingsErrorState(errorMessage: e.toString()));
+      emit(MonitorParkingsErrorState(
+          'Failed to delete parking. Details: ${e.toString()}'));
     }
   }
 }

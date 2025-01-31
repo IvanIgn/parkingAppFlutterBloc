@@ -457,7 +457,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
 
                     // Update vehicle using VehicleBloc
                     BlocProvider.of<VehicleBloc>(context)
-                        .add(UpdateVehicles(vehicle: updatedVehicle));
+                        .add(UpdateVehicle(vehicle: updatedVehicle));
 
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -491,7 +491,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
               onPressed: () {
                 // Delete vehicle using VehicleBloc
                 BlocProvider.of<VehicleBloc>(context)
-                    .add(DeleteVehicles(vehicle: vehicle));
+                    .add(DeleteVehicle(vehicle: vehicle));
 
                 Navigator.of(context).pop(); // Close the dialog
               },

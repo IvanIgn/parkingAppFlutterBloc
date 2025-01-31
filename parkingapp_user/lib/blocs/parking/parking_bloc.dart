@@ -1,14 +1,18 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
 import 'package:client_repositories/async_http_repos.dart';
+import 'package:equatable/equatable.dart';
+import 'package:clock/clock.dart';
 
 part 'parking_event.dart';
 part 'parking_state.dart';
 
 class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
+  final ParkingRepository parkingRepository;
   List<Parking> _parkingList = [];
+  //ParkingBloc({required this.parkingRepository}) : super(ParkingsInitial());
 
-  ParkingBloc() : super(ParkingInitial()) {
+  ParkingBloc({required this.parkingRepository}) : super(ParkingsInitial()) {
     // on<LoadParkings>((event, emit) async {
     //   await onLoadParkings(emit);
     // });
@@ -37,7 +41,7 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   Future<void> onLoadActiveParkings(Emitter<ParkingState> emit) async {
     emit(ParkingsLoading());
     try {
-      _parkingList = await ParkingRepository.instance.getAllParkings();
+      _parkingList = await parkingRepository.getAllParkings();
 
       List<Parking> activeParkings = _parkingList
           .where(
@@ -52,13 +56,28 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
     }
   }
 
+  // Future<void> onLoadNonActiveParkings(Emitter<ParkingState> emit) async {
+  //   emit(ParkingsLoading());
+  //   try {
+  //     _parkingList = await parkingRepository.getAllParkings();
+
+  //     List<Parking> nonActiveParkings = _parkingList
+  //         .where((parking) => parking.endTime.isBefore(DateTime.now()))
+  //         .toList();
+
+  //     emit(ParkingsLoaded(parkings: nonActiveParkings));
+  //   } catch (e) {
+  //     emit(ParkingsError(message: e.toString()));
+  //   }
+  // }
+
   Future<void> onLoadNonActiveParkings(Emitter<ParkingState> emit) async {
     emit(ParkingsLoading());
     try {
-      _parkingList = await ParkingRepository.instance.getAllParkings();
+      _parkingList = await parkingRepository.getAllParkings();
 
       List<Parking> nonActiveParkings = _parkingList
-          .where((parking) => parking.endTime.isBefore(DateTime.now()))
+          .where((parking) => parking.endTime.isBefore(clock.now()))
           .toList();
 
       emit(ParkingsLoaded(parkings: nonActiveParkings));
@@ -68,32 +87,95 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   onCreateParking(Emitter<ParkingState> emit, Parking parking) async {
+    emit(ParkingsLoading()); // Emit loading state
     try {
-      await ParkingRepository.instance.createParking(parking);
+      // emit(ParkingsLoading());
+      await parkingRepository.createParking(parking);
 
-      add(LoadActiveParkings());
+      // Fetch all parkings from the repository
+      final allParkings = await parkingRepository.getAllParkings();
+
+      // Filter active parkings
+      final activeParkings =
+          allParkings.where((p) => p.endTime.isAfter(DateTime.now())).toList();
+
+      // Emit loaded state with active parkings
+      emit(ActiveParkingsLoaded(parkings: activeParkings));
     } catch (e) {
+      // Emit an error state if something goes wrong
       emit(ParkingsError(message: e.toString()));
     }
   }
+
+  // onCreateParking(Emitter<ParkingState> emit, Parking parking) async {
+  //   try {
+  //     emit(ParkingsLoading());
+
+  //     await parkingRepository.createParking(parking);
+
+  //     final activeParkings = await parkingRepository.getAllParkings();
+
+  //     emit(ActiveParkingsLoaded(
+  //       parkings: activeParkings
+  //           .where((p) => p.endTime.isAfter(DateTime.now()))
+  //           .toList(),
+  //     ));
+  //   } catch (e) {
+  //     emit(ParkingsError(message: e.toString()));
+  //   }
+  // }
 
   onUpdateParking(Emitter<ParkingState> emit, Parking parking) async {
     try {
-      await ParkingRepository.instance.updateParking(parking.id, parking);
-
+      await parkingRepository.updateParking(parking.id, parking);
       add(LoadActiveParkings());
     } catch (e) {
-      emit(ParkingsError(message: e.toString()));
+      // Modify error message to match the expected format
+      emit(ParkingsError(
+          message: 'Failed to edit parking. Details: ${e.toString()}'));
     }
   }
 
+  // onDeleteParking(Emitter<ParkingState> emit, Parking parking) async {
+  //   try {
+  //     await parkingRepository.deleteParking(parking.id);
+
+  //     add(LoadActiveParkings());
+  //   } catch (e) {
+  //     emit(ParkingsError(message: e.toString()));
+  //   }
+  // }
+
+  // onDeleteParking(Emitter<ParkingState> emit, Parking parking) async {
+  //   try {
+  //     emit(ParkingsLoading()); // Emit loading state first
+
+  //     await parkingRepository.deleteParking(parking.id);
+
+  //     // After successful deletion, emit the loaded state with updated list of parkings
+  //     final allParkings = await parkingRepository.getAllParkings();
+  //     emit(ParkingsLoaded(parkings: allParkings));
+  //   } catch (e) {
+  //     emit(ParkingsError(
+  //         message: 'Failed to delete parking. Details: ${e.toString()}'));
+  //   }
+  // }
+
   onDeleteParking(Emitter<ParkingState> emit, Parking parking) async {
     try {
-      await ParkingRepository.instance.deleteParking(parking.id);
+      // Try to delete parking
+      await parkingRepository.deleteParking(parking.id);
 
-      add(LoadActiveParkings());
+      // Emit loading state only if the delete operation is successful
+      emit(ParkingsLoading());
+
+      // After successful deletion, fetch the updated list of parkings
+      final allParkings = await parkingRepository.getAllParkings();
+      emit(ParkingsLoaded(parkings: allParkings));
     } catch (e) {
-      emit(ParkingsError(message: e.toString()));
+      // If an error occurs, directly emit the error state without loading state
+      emit(ParkingsError(
+          message: 'Failed to delete parking. Details: ${e.toString()}'));
     }
   }
 }
