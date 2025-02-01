@@ -102,67 +102,80 @@ void main() {
   });
 
   group('AddVehicle', () {
-    final newVehicle = Vehicle(id: 3, regNumber: 'DEF456', vehicleType: 'Bil');
+    final newVehicle = Vehicle(
+      id: 3,
+      regNumber: 'DEF456',
+      vehicleType: 'Bil',
+      owner: Person(
+          id: 3,
+          name: 'Jake Bill',
+          personNumber: '1260560020'), // Ensure owner is not null
+    );
 
     blocTest<VehicleBloc, VehicleState>(
       'emits [VehiclesLoading, VehiclesLoaded] when adding a vehicle is successful',
-      build: () => vehicleBloc,
       setUp: () {
         when(() => mockRepository.createVehicle(any())).thenAnswer(
-          (_) async => Vehicle(
-            id: 3,
-            regNumber: 'DEF456',
-            vehicleType: 'Bil',
-            owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
-          ),
+          (invocation) async {
+            final vehicle = invocation.positionalArguments.first as Vehicle;
+            return vehicle.copyWith(
+              owner:
+                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+            );
+          },
         );
 
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-                id: 1,
-                regNumber: 'ABC123',
-                vehicleType: 'Bil',
-                owner: Person(
-                    id: 1, name: 'John Doe', personNumber: '1234567890')),
+              id: 1,
+              regNumber: 'ABC123',
+              vehicleType: 'Bil',
+              owner:
+                  Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            ),
             Vehicle(
-                id: 2,
-                regNumber: 'XYZ789',
-                vehicleType: 'Lastbil',
-                owner: Person(
-                    id: 2, name: 'Jane Jones', personNumber: '1243560000')),
+              id: 2,
+              regNumber: 'XYZ789',
+              vehicleType: 'Lastbil',
+              owner:
+                  Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+            ),
             Vehicle(
-                id: 3,
-                regNumber: 'DEF456',
-                vehicleType: 'Bil',
-                owner: Person(
-                    id: 3, name: 'Jake Bill', personNumber: '1260560020')),
+              id: 3,
+              regNumber: 'DEF456',
+              vehicleType: 'Bil',
+              owner:
+                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+            ),
           ],
         );
       },
+      build: () => vehicleBloc,
       act: (bloc) => bloc.add(CreateVehicle(vehicle: newVehicle)),
       expect: () => [
         VehiclesLoading(),
         VehiclesLoaded(vehicles: [
           Vehicle(
-              id: 1,
-              regNumber: 'ABC123',
-              vehicleType: 'Bil',
-              owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890')),
+            id: 1,
+            regNumber: 'ABC123',
+            vehicleType: 'Bil',
+            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          ),
           Vehicle(
-              id: 2,
-              regNumber: 'XYZ789',
-              vehicleType: 'Lastbil',
-              owner: Person(
-                  id: 2, name: 'Jane Jones', personNumber: '1243560000')),
+            id: 2,
+            regNumber: 'XYZ789',
+            vehicleType: 'Lastbil',
+            owner:
+                Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+          ),
           Vehicle(
-              id: 3,
-              regNumber: 'DEF456',
-              vehicleType: 'Bil',
-              owner:
-                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020')),
-        ]),
+            id: 3,
+            regNumber: 'DEF456',
+            vehicleType: 'Bil',
+            owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+          ),
+        ], selectedVehicle: null),
       ],
     );
 

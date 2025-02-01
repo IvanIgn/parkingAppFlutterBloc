@@ -41,7 +41,8 @@ void main() {
           ],
         );
       },
-      act: (bloc) => bloc.add(FetchPersonsEvent()), // Trigger the fetch event
+      act: (bloc) =>
+          bloc.add(const FetchPersonsEvent()), // Trigger the fetch event
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
         PersonLoadedState([
@@ -58,7 +59,8 @@ void main() {
       setUp: () {
         when(() => mockRepository.getAllPersons()).thenThrow(Exception());
       },
-      act: (bloc) => bloc.add(FetchPersonsEvent()), // Trigger the fetch event
+      act: (bloc) =>
+          bloc.add(const FetchPersonsEvent()), // Trigger the fetch event
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
         PersonErrorState(
@@ -88,7 +90,10 @@ void main() {
       )), // Trigger AddPersonEvent with a person
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
-        PersonAddedState(), // Then, the added state is emitted
+        PersonAddedState(Person(
+            id: 1,
+            name: 'John Doe',
+            personNumber: '1234567890')), // Then, the added state is emitted
         PersonLoadedState([
           // Finally, the updated list of persons is emitted
           Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
@@ -136,7 +141,11 @@ void main() {
       )), // Trigger UpdatePersonEvent with an updated person
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
-        PersonUpdatedState(), // Then, the updated state is emitted
+        PersonUpdatedState(Person(
+            id: 1,
+            name: 'John Doe Updated',
+            personNumber:
+                '199876543211')), // Then, the updated state is emitted
         PersonLoadedState([
           // Finally, the updated list of persons is emitted
           Person(id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
@@ -184,7 +193,7 @@ void main() {
         1)), // Trigger DeletePersonEvent with a person ID
     expect: () => [
       PersonLoadingState(), // First, the loading state is emitted
-      PersonDeletedState(), // Then, the deleted state is emitted
+      PersonDeletedState(1), // Then, the deleted state is emitted
       PersonLoadedState(
           const []), // Finally, the updated list of persons (empty) is emitted
     ],

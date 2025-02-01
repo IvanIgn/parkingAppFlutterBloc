@@ -205,11 +205,17 @@ void main() {
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'starts parking and updates state',
-      build: () {
+      setUp: () {
         when(() => mockParkingRepository.createParking(any()))
-            .thenAnswer((_) async => parking);
-        return parkingSpaceBloc;
+            .thenAnswer((_) async {
+          return parking;
+        });
+
+        when(() => mockParkingRepository.getAllParkings()).thenAnswer(
+          (_) async => [parking], // Ensure it returns the expected parking
+        );
       },
+      build: () => parkingSpaceBloc,
       seed: () => ParkingSpaceLoaded(
         parkingSpaces: [parkingSpace],
         selectedParkingSpace: parkingSpace,

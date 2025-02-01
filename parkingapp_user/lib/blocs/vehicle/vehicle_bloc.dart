@@ -205,46 +205,171 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState> {
   //   }
   // }
 
+  // Future<void> _onCreateVehicle(
+  //     CreateVehicle event, Emitter<VehicleState> emit) async {
+  //   emit(VehiclesLoading());
+  //   try {
+  //     await repository.createVehicle(event.vehicle);
+  //     final vehicles = await repository.getAllVehicles();
+  //     if (vehicles != null) {
+  //       emit(VehiclesLoaded(vehicles: vehicles));
+  //     } else {
+  //       emit(VehiclesError(message: 'Failed to add vehicles after creation'));
+  //     }
+  //   } catch (e) {
+  //     emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
+  //   }
+  // }
+
+  // Future<void> _onCreateVehicle(
+  //     CreateVehicle event, Emitter<VehicleState> emit) async {
+  //   try {
+  //     emit(VehiclesLoading()); // Add this to match test expectation
+  //     await repository.createVehicle(event.vehicle);
+  //     // emit(VehicleAdded(vehicle: event.vehicle)); // Emit after creating
+  //     add(LoadVehiclesByPerson(person: event.vehicle.owner!));
+  //   } catch (e) {
+  //     emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
+  //   }
+  // }
+
+  // Future<void> _onCreateVehicle(
+  //     CreateVehicle event, Emitter<VehicleState> emit) async {
+  //   try {
+  //     emit(VehiclesLoading()); // Add this to match test expectation
+  //     final createdVehicle = await repository.createVehicle(event.vehicle);
+
+  //     // Check if the owner is null before proceeding
+  //     if (createdVehicle.owner == null) {
+  //       emit(VehiclesError(message: 'Vehicle has no owner.'));
+  //       return;
+  //     }
+
+  //     add(LoadVehiclesByPerson(
+  //         person: createdVehicle.owner!)); // Proceed only if owner is non-null
+  //   } catch (e) {
+  //     emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
+  //   }
+  // }
+
+  // Future<void> _onCreateVehicle(
+  //     CreateVehicle event, Emitter<VehicleState> emit) async {
+  //   try {
+  //     emit(VehiclesLoading()); // Emit loading state
+
+  //     // Create the vehicle and add it
+  //     final createdVehicle = await repository.createVehicle(event.vehicle);
+
+  //     // After creation, load the vehicles list (including new vehicle)
+  //     final allVehicles = await repository.getAllVehicles();
+
+  //     emit(VehiclesLoaded(vehicles: allVehicles));
+  //   } catch (e) {
+  //     emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
+  //   }
+  // }
+
+  // Future<void> _onCreateVehicle(
+  //     CreateVehicle event, Emitter<VehicleState> emit) async {
+  //   try {
+  //     emit(VehiclesLoading()); // Emit loading state
+
+  //     // Load the vehicles list first
+  //     final allVehicles = await repository.getAllVehicles();
+
+  //     // Check if a vehicle with the same registration number exists
+  //     final vehicleExists = allVehicles.any(
+  //       (vehicle) => vehicle.regNumber == event.vehicle.regNumber,
+  //     );
+
+  //     if (vehicleExists) {
+  //       // If the vehicle already exists, show an error in the snackbar
+  //       emit(VehiclesError(message: 'Fordon med detta reg.nummer finns redan'));
+  //       return; // Exit early, no need to create the vehicle
+  //     }
+
+  //     // If no duplicate is found, create the vehicle
+  //     await repository.createVehicle(event.vehicle);
+
+  //     // After creation, load the vehicles list again (with the new vehicle)
+  //     final updatedVehicles = await repository.getAllVehicles();
+
+  //     // Emit the updated list of vehicles
+  //     emit(VehiclesLoaded(vehicles: updatedVehicles));
+  //   } catch (e) {
+  //     emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
+  //   }
+  // }
+
   Future<void> _onCreateVehicle(
       CreateVehicle event, Emitter<VehicleState> emit) async {
-    emit(VehiclesLoading());
     try {
-      await repository.createVehicle(event.vehicle);
-      final vehicles = await repository.getAllVehicles();
-      if (vehicles != null) {
-        emit(VehiclesLoaded(vehicles: vehicles));
-      } else {
-        emit(VehiclesError(message: 'Failed to add vehicles after creation'));
+      emit(VehiclesLoading()); // Emit loading state
+
+      // Load the vehicles list first
+      final allVehicles = await repository.getAllVehicles();
+
+      // Check if a vehicle with the same registration number exists
+      final vehicleExists = allVehicles.any(
+        (vehicle) => vehicle.regNumber == event.vehicle.regNumber,
+      );
+
+      if (vehicleExists) {
+        // Instead of emitting an error, simply ignore and load the list again
+        // You could also show the error message as a SnackBar or Toast if needed
+        // Just omit the emit of VehiclesError, and re-load the vehicle list
+        final updatedVehicles = await repository.getAllVehicles();
+        emit(VehiclesLoaded(vehicles: updatedVehicles, selectedVehicle: null));
+        return;
       }
+
+      // If no duplicate is found, create the vehicle
+      await repository.createVehicle(event.vehicle);
+
+      // After creation, load the vehicles list again (with the new vehicle)
+      final updatedVehicles = await repository.getAllVehicles();
+
+      // Emit the updated list of vehicles
+      emit(VehiclesLoaded(vehicles: updatedVehicles, selectedVehicle: null));
     } catch (e) {
       emit(VehiclesError(message: 'Failed to add vehicles after creation: $e'));
     }
   }
 
-  // Future<void> _onUpdateVehicle(
-  //     UpdateVehicle event, Emitter<VehicleState> emit) async {
-  //   try {
-  //     await repository.updateVehicle(event.vehicle.id, event.vehicle);
-  //     add(LoadVehiclesByPerson(person: event.vehicle.owner!));
-  //   } catch (e) {
-  //     emit(VehiclesError(message: e.toString()));
-  //   }
-  // }
-
   Future<void> _onUpdateVehicle(
-      UpdateVehicle event, Emitter<VehicleState> emit) async {
-    emit(VehiclesLoading());
+    UpdateVehicle event,
+    Emitter<VehicleState> emit,
+  ) async {
+    emit(VehiclesLoading()); // Emit loading state
+
     try {
-      final updatedVehicle =
-          await repository.updateVehicle(event.vehicle.id, event.vehicle);
+      // Load all vehicles first to check for duplicate regNumber
+      final allVehicles = await repository.getAllVehicles();
 
-      // Emit the VehicleUpdated event before reloading the vehicle list
-      emit(VehicleUpdated(vehicle: updatedVehicle));
+      // Check if a vehicle with the same registration number exists
+      final vehicleExists = allVehicles.any(
+        (vehicle) =>
+            vehicle.regNumber == event.vehicle.regNumber &&
+            vehicle.id != event.vehicle.id,
+      );
 
-      final vehicles = await repository.getAllVehicles();
-      emit(VehiclesLoaded(vehicles: vehicles));
-    } catch (e) {
-      emit(VehiclesError(message: 'Failed to update vehicle: $e'));
+      if (vehicleExists) {
+        // If a vehicle with the same regNumber exists, show an error in the form
+        emit(VehiclesError(message: 'Fordon med detta reg.nummer finns redan'));
+        return; // Exit early if there's a duplicate registration number
+      }
+
+      // Proceed with updating the vehicle if no duplicates are found
+      await repository.updateVehicle(event.vehicle.id, event.vehicle);
+
+      // Load the updated list of vehicles (this should return the updated list)
+      final updatedVehicles = await repository.getAllVehicles();
+
+      // Emit the updated vehicle and the updated vehicle list
+      emit(VehicleUpdated(vehicle: event.vehicle)); // Emit vehicle updated
+      emit(VehiclesLoaded(vehicles: updatedVehicles)); // Emit loaded vehicles
+    } catch (error) {
+      emit(VehiclesError(message: 'Failed to update vehicle: $error'));
     }
   }
 

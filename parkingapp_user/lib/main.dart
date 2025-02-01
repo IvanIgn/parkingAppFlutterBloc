@@ -38,9 +38,9 @@ void main() async {
             create: (context) =>
                 VehicleBloc(vehicleRepository)..add(LoadVehicles())),
         BlocProvider<ParkingBloc>(
-            create: (context) =>
-                ParkingBloc(parkingRepository: parkingRepository)
-                  ..add(LoadActiveParkings())),
+            create: (context) => ParkingBloc(
+                parkingRepository: parkingRepository, sharedPreferences: prefs)
+              ..add(LoadActiveParkings())),
         BlocProvider<ParkingSpaceBloc>(
           create: (context) => ParkingSpaceBloc(
               parkingSpaceRepository: parkingSpaceRepository,

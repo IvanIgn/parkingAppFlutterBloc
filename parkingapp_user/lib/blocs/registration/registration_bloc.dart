@@ -134,7 +134,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
       await _personRepository.createPerson(newPerson);
 
-      emit(RegistrationSuccess(successMessage: "Registration successful!"));
+      emit(RegistrationSuccess(
+          successMessage:
+              "Personen ${event.name} med personnummer ${event.personNum} har registrerats!"));
     } catch (e) {
       emit(RegistrationError(errorMessage: "Error during registration: $e"));
     }

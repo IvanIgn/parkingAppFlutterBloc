@@ -1,22 +1,39 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared/shared.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:parkingapp_user/blocs/parking/parking_bloc.dart';
 import 'package:clock/clock.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class MockParkingRepository extends Mock implements ParkingRepository {}
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 class FakeParking extends Fake implements Parking {}
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   late ParkingBloc parkingBloc;
   late MockParkingRepository mockParkingRepository;
+  late SharedPreferences mockSharedPreferences;
 
   setUp(() {
+    mockSharedPreferences = MockSharedPreferences();
     mockParkingRepository = MockParkingRepository();
-    parkingBloc = ParkingBloc(parkingRepository: mockParkingRepository);
+    parkingBloc = ParkingBloc(
+      parkingRepository: mockParkingRepository,
+      sharedPreferences: mockSharedPreferences,
+    );
+    parkingBloc = ParkingBloc(
+      parkingRepository: mockParkingRepository,
+      sharedPreferences: mockSharedPreferences,
+    );
+    when(() => mockSharedPreferences.getString('loggedInPerson'))
+        .thenReturn(json.encode({'id': 0})); // Simulate a logged-in user
   });
 
   setUpAll(() {
@@ -55,20 +72,34 @@ void main() {
 
     blocTest<ParkingBloc, ParkingState>(
       'emits [ParkingsLoading, ActiveParkingsLoaded] on successful fetch',
-      build: () {
+      setUp: () {
+        // Mock SharedPreferences to return a logged-in user
+        when(() => mockSharedPreferences.getString('loggedInPerson'))
+            .thenReturn(
+          json.encode({'id': 0}), // Simulate a logged-in user with ID 0
+        );
+
+        // Mock repository to return active parkings
         when(() => mockParkingRepository.getAllParkings()).thenAnswer(
-            (_) async => activeParkings); // Mock repository response
-        return ParkingBloc(
-            parkingRepository: mockParkingRepository); // Inject mock repository
+          (_) async => activeParkings, // Ensure this matches logged-in user
+        );
       },
+      build: () => ParkingBloc(
+        parkingRepository: mockParkingRepository,
+        sharedPreferences:
+            mockSharedPreferences, // Inject mock SharedPreferences
+      ),
       act: (bloc) => bloc.add(LoadActiveParkings()), // Trigger the event
-      expect: () => [
-        ParkingsLoading(),
-        ActiveParkingsLoaded(parkings: activeParkings),
-      ],
+      expect: () {
+        return [
+          ParkingsLoading(),
+          ActiveParkingsLoaded(
+              parkings: activeParkings), // Correct expected state
+        ];
+      },
       verify: (_) {
         verify(() => mockParkingRepository.getAllParkings())
-            .called(1); // Verify repository interaction
+            .called(1); // Ensure method is called once
       },
     );
 
@@ -115,7 +146,10 @@ void main() {
           when(() => mockParkingRepository.getAllParkings())
               .thenAnswer((_) async => nonActiveParkings);
         });
-        return ParkingBloc(parkingRepository: mockParkingRepository);
+        return ParkingBloc(
+          parkingRepository: mockParkingRepository,
+          sharedPreferences: mockSharedPreferences,
+        );
       },
       act: (bloc) => bloc.add(LoadNonActiveParkings()),
       expect: () => [
@@ -222,20 +256,27 @@ void main() {
 
     blocTest<ParkingBloc, ParkingState>(
       'emits ActiveParkingsLoadedState on successful update',
-      build: () {
-        // Mock the update method
+      setUp: () {
+        // Mock SharedPreferences to return a logged-in user
+        when(() => mockSharedPreferences.getString('loggedInPerson'))
+            .thenReturn(json.encode({'id': 0})); // Simulate a logged-in user
+
+        // Mock updateParking method
         when(() => mockParkingRepository.updateParking(parking.id, parking))
             .thenAnswer((_) async => parking);
-        // Mock fetching all parkings
+
+        // 🛠 FIX: Mock getAllParkings() to return a valid Future<List<Parking>>
         when(() => mockParkingRepository.getAllParkings())
-            .thenAnswer((_) async => [parking]);
-        return parkingBloc;
+            .thenAnswer((_) async => [parking]); // Ensure correct return type
       },
+      build: () => ParkingBloc(
+        parkingRepository: mockParkingRepository,
+        sharedPreferences: mockSharedPreferences, // Inject SharedPreferences
+      ),
       act: (bloc) => bloc.add(UpdateParking(parking: parking)),
       expect: () => [
-        ParkingsLoading(), // Emitted while loading
-        ActiveParkingsLoaded(
-            parkings: [parking]), // State after fetching all parkings
+        ParkingsLoading(),
+        ActiveParkingsLoaded(parkings: [parking]), // Ensure correct state
       ],
       verify: (_) {
         verify(() => mockParkingRepository.updateParking(parking.id, parking))

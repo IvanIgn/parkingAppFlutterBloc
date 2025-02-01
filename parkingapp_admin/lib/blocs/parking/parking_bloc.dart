@@ -33,15 +33,29 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     }
   }
 
+  // Future<void> _onAddParkingEvent(
+  //   AddParkingEvent event,
+  //   Emitter<MonitorParkingsState> emit,
+  // ) async {
+  //   try {
+  //     await parkingRepository.createParking(event.parking);
+  //     add(AddParkingEvent(event.parking));
+  //   } catch (e) {
+  //     emit(MonitorParkingsErrorState(e.toString()));
+  //   }
+  // }
+
   Future<void> _onAddParkingEvent(
     AddParkingEvent event,
     Emitter<MonitorParkingsState> emit,
   ) async {
+    emit(MonitorParkingsLoadingState()); // Emit a loading state
     try {
       await parkingRepository.createParking(event.parking);
-      add(LoadParkingsEvent());
-    } catch (e) {
-      emit(MonitorParkingsErrorState(e.toString()));
+      final parkings = await parkingRepository.getAllParkings();
+      emit(MonitorParkingsLoadedState(parkings)); // Emit the updated state
+    } catch (error) {
+      emit(MonitorParkingsErrorState('Failed to add parking: $error'));
     }
   }
 
