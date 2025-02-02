@@ -55,7 +55,9 @@ void main() {
       ),
       expect: () => [
         RegistrationLoading(),
-        RegistrationSuccess(successMessage: "Registration successful!"),
+        RegistrationSuccess(
+            successMessage:
+                "Personen John Doe med personnummer 123456789012 har registrerats!"),
       ],
     );
 

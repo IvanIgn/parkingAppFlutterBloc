@@ -44,22 +44,6 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
     }
   }
 
-  // Future<void> _onUpdateParkingSpace(
-  //   UpdateParkingSpace event,
-  //   Emitter<ParkingSpaceState> emit,
-  // ) async {
-  //   emit(ParkingSpaceLoading());
-  //   try {
-  //     await parkingSpaceRepository.updateParkingSpace(
-  //         event.parkingSpace.id, event.parkingSpace);
-  //     final updatedSpaces = await parkingSpaceRepository.getAllParkingSpaces();
-  //     emit(ParkingSpaceUpdated());
-  //     emit(ParkingSpaceLoaded(updatedSpaces));
-  //   } catch (error) {
-  //     emit(ParkingSpaceError('Error updating parking space: $error'));
-  //   }
-  // }
-
   Future<void> _onUpdateParkingSpace(
     UpdateParkingSpace event,
     Emitter<ParkingSpaceState> emit,
@@ -86,20 +70,6 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
           'Error updating parking space: ${error.toString()}'));
     }
   }
-
-  // Future<void> _onDeleteParkingSpace(
-  //   DeleteParkingSpace event,
-  //   Emitter<ParkingSpaceState> emit,
-  // ) async {
-  //   try {
-  //     await parkingSpaceRepository.deleteParkingSpace(event.parkingSpaceId);
-  //     final updatedParkingSpaces =
-  //         await parkingSpaceRepository.getAllParkingSpaces(); // Refresh list
-  //     emit(ParkingSpaceLoaded(updatedParkingSpaces));
-  //   } catch (error) {
-  //     emit(ParkingSpaceError('Failed to delete parking space: $error'));
-  //   }
-  // }
 
   Future<void> _onDeleteParkingSpace(
       DeleteParkingSpace event, Emitter<ParkingSpaceState> emit) async {

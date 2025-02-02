@@ -33,18 +33,6 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     }
   }
 
-  // Future<void> _onAddParkingEvent(
-  //   AddParkingEvent event,
-  //   Emitter<MonitorParkingsState> emit,
-  // ) async {
-  //   try {
-  //     await parkingRepository.createParking(event.parking);
-  //     add(AddParkingEvent(event.parking));
-  //   } catch (e) {
-  //     emit(MonitorParkingsErrorState(e.toString()));
-  //   }
-  // }
-
   Future<void> _onAddParkingEvent(
     AddParkingEvent event,
     Emitter<MonitorParkingsState> emit,

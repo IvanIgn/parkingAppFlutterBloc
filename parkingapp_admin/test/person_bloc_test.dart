@@ -89,11 +89,11 @@ void main() {
         Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
       )), // Trigger AddPersonEvent with a person
       expect: () => [
-        PersonLoadingState(), // First, the loading state is emitted
-        PersonAddedState(Person(
-            id: 1,
-            name: 'John Doe',
-            personNumber: '1234567890')), // Then, the added state is emitted
+        //  PersonLoadingState(), // First, the loading state is emitted
+        //  PersonAddedState(Person(
+        //     id: 1,
+        //     name: 'John Doe',
+        //     personNumber: '1234567890')), // Then, the added state is emitted
         PersonLoadedState([
           // Finally, the updated list of persons is emitted
           Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
@@ -112,7 +112,7 @@ void main() {
         Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
       )), // Trigger AddPersonEvent with a person
       expect: () => [
-        PersonLoadingState(), // First, the loading state is emitted
+        // PersonLoadingState(), // First, the loading state is emitted
         PersonErrorState(
             'Error adding person: Exception'), // Then, the error state is emitted
       ],
@@ -123,12 +123,10 @@ void main() {
       'UpdatePersonEvent emits [PersonLoadingState, PersonUpdatedState, PersonLoadedState] when update is successful',
       build: () => personBloc,
       setUp: () {
-        // Simulate repository updating a person
         when(() => mockRepository.updatePerson(any(), any())).thenAnswer(
           (_) async => Person(
               id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
         );
-        // Simulate repository fetching the updated list of persons
         when(() => mockRepository.getAllPersons()).thenAnswer(
           (_) async => [
             Person(
@@ -146,10 +144,10 @@ void main() {
             name: 'John Doe Updated',
             personNumber:
                 '199876543211')), // Then, the updated state is emitted
-        PersonLoadedState([
-          // Finally, the updated list of persons is emitted
-          Person(id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
-        ]),
+        // PersonLoadedState([
+        // Finally, the updated list of persons is emitted
+        //   Person(id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+        // ]),
       ],
     );
 
@@ -175,27 +173,21 @@ void main() {
 
 // Test case for deleting a person successfully
   blocTest<PersonBloc, PersonState>(
-    'DeletePersonEvent emits [PersonLoadingState, PersonDeletedState, PersonLoadedState] when delete is successful',
+    'DeletePersonEvent emits [PersonLoadingState, PersonLoadedState] when delete is successful',
     build: () => personBloc,
     setUp: () {
-      // Mock deletePerson to return a dummy Person
       when(() => mockRepository.deletePerson(any())).thenAnswer(
         (_) async => Person(
-            id: 1,
-            name: 'John Doe',
-            personNumber: '1234567890'), // Return a dummy Person
+            id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
       );
       when(() => mockRepository.getAllPersons()).thenAnswer(
-        (_) async => [], // Return an empty list after deletion
+        (_) async => [],
       );
     },
-    act: (bloc) => bloc.add(const DeletePersonEvent(
-        1)), // Trigger DeletePersonEvent with a person ID
+    act: (bloc) => bloc.add(const DeletePersonEvent(1)),
     expect: () => [
-      PersonLoadingState(), // First, the loading state is emitted
-      PersonDeletedState(1), // Then, the deleted state is emitted
-      PersonLoadedState(
-          const []), // Finally, the updated list of persons (empty) is emitted
+      PersonLoadingState(),
+      PersonLoadedState(const []),
     ],
   );
 

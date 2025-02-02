@@ -142,7 +142,9 @@ void main() {
       },
       act: (bloc) => bloc.add(AddParkingEvent(parking)),
       expect: () => [
-        MonitorParkingsErrorState('Exception: Failed to add parking'),
+        MonitorParkingsLoadingState(),
+        MonitorParkingsErrorState(
+            'Failed to add parking: Exception: Failed to add parking'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.createParking(parking)).called(1);
